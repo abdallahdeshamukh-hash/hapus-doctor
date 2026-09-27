@@ -127,7 +127,7 @@ export default function ResetScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.surface.page,
   },
   header: {
     alignItems: 'center',
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   title: {
-    fontSize: 22,
+    ...theme.type.h1,
     fontFamily: theme.fonts.bold,
     color: theme.colors.textPrimary,
   },
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.surface.raised,
     borderWidth: 1,
     borderColor: theme.colors.border,
     borderRadius: 12,

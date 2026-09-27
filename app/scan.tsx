@@ -452,7 +452,7 @@ function LoadingPhase({ message, tip, elapsed }: { message: string; tip: string;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.surface.page,
   },
   loadingWrap: {
     justifyContent: 'center',
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
   },
   loadingMsg: {
     marginTop: 20,
-    fontSize: 17,
+    ...theme.type.h2,
     fontFamily: theme.fonts.semiBold,
     color: theme.colors.textPrimary,
     textAlign: 'center',
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.surface.raised,
   },
   navButton: {
     width: 40,
@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   navTitle: {
-    fontSize: 17,
+    ...theme.type.h2,
     fontFamily: theme.fonts.semiBold,
     color: theme.colors.textPrimary,
   },
@@ -595,7 +595,7 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.surface.raised,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
@@ -655,7 +655,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   textInput: {
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.surface.raised,
     borderWidth: 1,
     borderColor: theme.colors.border,
     borderRadius: 12,

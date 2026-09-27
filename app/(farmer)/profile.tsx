@@ -141,7 +141,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.surface.page,
   },
   navBar: {
     paddingHorizontal: 24,
@@ -149,14 +149,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   navTitle: {
-    fontSize: 17,
+    ...theme.type.h2,
     fontFamily: theme.fonts.semiBold,
     color: theme.colors.textPrimary,
   },
   profileCard: {
     alignItems: 'center',
     paddingVertical: 24,
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.surface.raised,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: theme.colors.border,
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     color: theme.colors.white,
   },
   profileName: {
-    fontSize: 22,
+    ...theme.type.h1,
     fontFamily: theme.fonts.bold,
     color: theme.colors.textPrimary,
     marginBottom: 8,
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   infoCard: {
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.surface.raised,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: theme.colors.border,

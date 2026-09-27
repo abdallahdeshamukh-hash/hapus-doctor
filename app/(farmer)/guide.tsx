@@ -55,7 +55,7 @@ export default function GuideScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.surface.page,
   },
   navBar: {
     paddingHorizontal: 24,
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   navTitle: {
-    fontSize: 17,
+    ...theme.type.h2,
     fontFamily: theme.fonts.semiBold,
     color: theme.colors.textPrimary,
   },
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.surface.raised,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: theme.colors.border,

@@ -3,7 +3,9 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, I
 import { router, useFocusEffect } from 'expo-router';
 import { supabase, Scan, SEVERITY_CONFIG } from '@/lib/supabase';
 import { theme } from '@/lib/theme';
-import { LoadingState, EmptyState, SeverityBadge } from '@/components/ui';
+import { LoadingState, EmptyState, SeverityBadge, SeverityRail } from '@/components/ui';
+import { MangoLeaf } from '@/components/Brand';
+import { resolveScanImage } from '@/lib/scanImage';
 import { isSampleScan } from '@/lib/offline';
 import { Leaf, CheckCircle, ChevronRight, Bookmark } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -62,6 +64,7 @@ export default function HistoryScreen() {
             {scans.map((scan) => {
               const sev = scan.severity ? SEVERITY_CONFIG[scan.severity] : null;
               const sample = isSampleScan(scan);
+              const image = resolveScanImage(scan);
               return (
                 <TouchableOpacity
                   key={scan.id}
@@ -69,11 +72,14 @@ export default function HistoryScreen() {
                   onPress={() => router.push(`/result/${scan.id}`)}
                   activeOpacity={0.7}
                 >
-                  {scan.image_url ? (
-                    <Image source={{ uri: scan.image_url }} style={styles.thumb} />
+                  <SeverityRail
+                    color={scan.is_healthy ? '#4ade80' : (sev?.dotColor ?? theme.colors.neutral[300])}
+                  />
+                  {image ? (
+                    <Image source={image} style={styles.thumb} resizeMode="cover" />
                   ) : (
-                    <View style={[styles.thumb, styles.thumbPlaceholder, sample && styles.sampleThumb]}>
-                      <Bookmark size={20} color={theme.colors.accent[700]} strokeWidth={2} />
+                    <View style={[styles.thumb, styles.thumbPlaceholder]}>
+                      <MangoLeaf size={26} color={theme.colors.primary[500]} opacity={0.5} />
                     </View>
                   )}
                   <View style={{ flex: 1 }}>
@@ -86,13 +92,12 @@ export default function HistoryScreen() {
                       )}
                       {scan.is_healthy ? (
                         <View style={styles.healthyBadge}>
-                          <CheckCircle size={12} color="#16a34a" strokeWidth={2.5} />
+                          <CheckCircle size={12} color="#15803d" strokeWidth={2.5} />
                           <Text style={styles.healthyBadgeText}>निरोगी</Text>
                         </View>
                       ) : (
                         <SeverityBadge severity={scan.severity} />
                       )}
-                      {sev && scan.is_healthy ? <SeverityBadge severity={scan.severity} /> : null}
                     </View>
                     <Text style={styles.cardTitle} numberOfLines={1}>
                       {scan.is_healthy
@@ -122,35 +127,37 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.surface.page,
   },
   navBar: {
     paddingHorizontal: 24,
-    paddingVertical: 16,
+    paddingVertical: 14,
     alignItems: 'center',
   },
   navTitle: {
-    fontSize: 17,
+    ...theme.type.h2,
     fontFamily: theme.fonts.semiBold,
     color: theme.colors.textPrimary,
   },
   card: {
+    position: 'relative',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.card,
-    borderRadius: 14,
-    padding: 14,
+    backgroundColor: theme.surface.raised,
+    borderRadius: theme.radius.lg,
+    paddingVertical: 12,
+    paddingLeft: 16,
+    paddingRight: 12,
     borderWidth: 1,
     borderColor: theme.colors.border,
     gap: 12,
+    overflow: 'hidden',
   },
+  // Samples stay visually distinct from real scans: warm tint + dashed edge.
   sampleCard: {
-    backgroundColor: '#fffbeb',
-    borderColor: '#fde68a',
+    backgroundColor: theme.colors.accent[50],
+    borderColor: theme.colors.accent[200],
     borderStyle: 'dashed',
-  },
-  sampleThumb: {
-    backgroundColor: '#fef3c7',
   },
   sampleBadge: {
     flexDirection: 'row',
@@ -158,25 +165,26 @@ const styles = StyleSheet.create({
     gap: 5,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 9999,
-    backgroundColor: '#fef3c7',
+    borderRadius: theme.radius.full,
+    backgroundColor: theme.colors.accent[100],
     borderWidth: 1,
-    borderColor: '#fde68a',
+    borderColor: theme.colors.accent[200],
   },
   sampleBadgeText: {
-    fontSize: 11,
+    ...theme.type.tiny,
     fontFamily: theme.fonts.semiBold,
-    color: '#92400e',
+    color: theme.colors.accent[800],
   },
   thumb: {
-    width: 64,
-    height: 64,
-    borderRadius: 10,
+    width: 60,
+    height: 60,
+    borderRadius: 12,
     backgroundColor: theme.colors.neutral[100],
   },
   thumbPlaceholder: {
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: theme.colors.primary[50],
   },
   cardHeader: {
     flexDirection: 'row',
@@ -195,17 +203,18 @@ const styles = StyleSheet.create({
   },
   healthyBadgeText: {
     fontSize: 12,
+    lineHeight: 18,
     fontFamily: theme.fonts.semiBold,
-    color: '#16a34a',
+    color: '#15803d',
   },
   cardTitle: {
-    fontSize: 16,
+    ...theme.type.h3,
     fontFamily: theme.fonts.semiBold,
     color: theme.colors.textPrimary,
     marginBottom: 2,
   },
   cardDate: {
-    fontSize: 12,
+    ...theme.type.caption,
     fontFamily: theme.fonts.regular,
     color: theme.colors.textTertiary,
   },

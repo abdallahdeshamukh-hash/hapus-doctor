@@ -12,8 +12,10 @@ import {
 import { router } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
+import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '@/lib/theme';
-import { Leaf, Mail, Lock, User, ArrowRight, Eye, EyeOff, Compass } from 'lucide-react-native';
+import { MangoLeaf, LeafBadge } from '@/components/Brand';
+import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Compass } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Map raw Supabase errors to friendly, actionable Marathi. A judge tapping
@@ -169,17 +171,28 @@ export default function AuthScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingBottom: 40 }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <View style={styles.logoCircle}>
-            <Leaf size={32} color={theme.colors.white} strokeWidth={2.5} />
+        {/* Split hero: the brand sits on an orchard panel and the form rises
+            over it, so the first screen a judge sees reads as a product
+            rather than a bare form on white. */}
+        <LinearGradient
+          colors={[theme.colors.primary[700], theme.colors.primary[900]]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.hero}
+        >
+          <View style={styles.heroLeaf} pointerEvents="none">
+            <MangoLeaf size={210} color={theme.colors.primary[300]} opacity={0.16} />
           </View>
+          {/* White tile / green leaf so the mark stays legible against the
+              green panel (a green tile on green would disappear). */}
+          <LeafBadge size={58} background={theme.colors.white} leaf={theme.colors.primary[700]} />
           <Text style={styles.appName}>हपुस डॉक्टर</Text>
           <Text style={styles.tagline}>Hapus Doctor — तुमच्या बागेचा डॉक्टर</Text>
-        </View>
+        </LinearGradient>
 
         <View style={styles.form}>
           <Text style={styles.title}>{mode === 'login' ? 'पुन्हा स्वागत आहे' : 'नवीन खाते'}</Text>
@@ -312,52 +325,56 @@ export default function AuthScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.surface.page,
   },
-  header: {
+  hero: {
     alignItems: 'center',
-    marginTop: 48,
-    marginBottom: 40,
+    paddingTop: 44,
+    paddingBottom: 56,
+    paddingHorizontal: 24,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+    overflow: 'hidden',
   },
-  logoCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: theme.colors.primary[600],
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: theme.colors.primary[600],
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
-    marginBottom: 16,
+  heroLeaf: {
+    position: 'absolute',
+    right: -58,
+    top: -46,
+    transform: [{ rotate: '20deg' }],
   },
   appName: {
-    fontSize: 30,
+    ...theme.type.display,
     fontFamily: theme.fonts.bold,
-    color: theme.colors.textPrimary,
+    color: theme.colors.white,
+    marginTop: 14,
     marginBottom: 4,
   },
   tagline: {
-    fontSize: 14,
+    ...theme.type.bodySm,
     fontFamily: theme.fonts.medium,
-    color: theme.colors.textSecondary,
+    color: theme.colors.primary[200],
   },
+  // The form sheet rises over the hero panel by design.
   form: {
     flex: 1,
+    marginTop: -28,
+    backgroundColor: theme.surface.page,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingHorizontal: 24,
+    paddingTop: 28,
   },
   title: {
-    fontSize: 24,
+    ...theme.type.h1,
     fontFamily: theme.fonts.bold,
     color: theme.colors.textPrimary,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   subtitle: {
-    fontSize: 14,
+    ...theme.type.bodySm,
     fontFamily: theme.fonts.regular,
     color: theme.colors.textSecondary,
-    marginBottom: 24,
+    marginBottom: 22,
   },
   errorBox: {
     backgroundColor: '#fef2f2',
@@ -399,7 +416,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.surface.raised,
     borderWidth: 1,
     borderColor: theme.colors.border,
     borderRadius: 12,
@@ -432,14 +449,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     backgroundColor: theme.colors.primary[600],
-    borderRadius: 12,
+    borderRadius: theme.radius.md,
     height: 56,
     marginTop: 8,
-    shadowColor: theme.colors.primary[600],
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 4,
+    shadowColor: theme.colors.primary[800],
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.28,
+    shadowRadius: 14,
+    elevation: 5,
   },
   submitButtonDisabled: {
     opacity: 0.6,
@@ -454,7 +471,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.surface.raised,
     borderWidth: 1.5,
     borderColor: theme.colors.primary[600],
     borderRadius: 12,

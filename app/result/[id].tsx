@@ -6,14 +6,16 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  ActivityIndicator,
 } from 'react-native';
 import { router, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { Linking, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Speech from 'expo-speech';
 import { supabase, Scan, SEVERITY_CONFIG, STAGE_CONFIG, TreatmentOption } from '@/lib/supabase';
 import { theme } from '@/lib/theme';
-import { LoadingState, SeverityBadge, StageBadge } from '@/components/ui';
+import { LoadingState, StageBadge, SeverityRail, GlassBadge } from '@/components/ui';
+import { MangoLeaf } from '@/components/Brand';
+import { resolveScanImage, SAMPLE_PHOTO_CREDIT } from '@/lib/scanImage';
 import { cacheLastScan, getCachedLastScan, isSampleScan, setScanReminder, getScanReminder } from '@/lib/offline';
 import {
   ChevronLeft,
@@ -21,8 +23,6 @@ import {
   Volume2,
   Share2,
   Square,
-  CheckCircle,
-  AlertTriangle,
   FlaskConical,
   Leaf,
   Bell,
@@ -149,6 +149,7 @@ export default function ResultScreen() {
   }
 
   const sev = scan.severity ? SEVERITY_CONFIG[scan.severity] : null;
+  const verdictImage = resolveScanImage(scan);
 
   // ---- Marathi speech text (the farmer's ears are the UI) ----
   function buildSpeechText(s: Scan): string {
@@ -306,46 +307,63 @@ export default function ResultScreen() {
           </View>
         )}
 
-        {/* ---- PHOTO ---- */}
-        {scan.image_url ? (
-          <Image source={{ uri: scan.image_url }} style={styles.photo} />
-        ) : null}
+        {/* ---- VERDICT HERO ----
+            The photo carries the verdict: scrimmed, with the badges and the
+            diagnosis laid over it. Without a photo the same layout falls back
+            to a gradient panel, so the screen never opens on a bare text block. */}
+        <View style={styles.verdictHero}>
+          {verdictImage ? (
+            <>
+              <Image source={verdictImage} style={styles.verdictPhoto} resizeMode="cover" />
+              <LinearGradient colors={theme.scrim.strong} style={StyleSheet.absoluteFill} />
+            </>
+          ) : (
+            <LinearGradient
+              colors={
+                scan.is_healthy
+                  ? [theme.colors.primary[600], theme.colors.primary[900]]
+                  : ['#7f1d1d', theme.colors.neutral[900]]
+              }
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+          )}
 
-        {/* ---- VERDICT CARD ---- */}
-        {scan.is_healthy ? (
-          <View style={[styles.verdictCard, styles.verdictHealthy]}>
-            <View style={styles.verdictIcon}>
-              <CheckCircle size={28} color="#16a34a" strokeWidth={2.2} />
-            </View>
-            <Text style={[styles.verdictTitle, { color: '#16a34a' }]}>झाड निरोगी आहे 🌿</Text>
-            {scan.confidence != null && (
-              <Text style={styles.verdictConfidence}>{scan.confidence}% खात्री</Text>
-            )}
-            {scan.description_mr && (
-              <Text style={styles.verdictDesc}>{scan.description_mr}</Text>
-            )}
+          <View style={styles.verdictLeaf} pointerEvents="none">
+            <MangoLeaf size={132} color="#ffffff" opacity={0.14} />
           </View>
-        ) : (
-          <View style={[styles.verdictCard, styles.verdictDisease]}>
-            <View style={[styles.verdictIcon, { backgroundColor: '#fef2f2' }]}>
-              <AlertTriangle size={28} color="#dc2626" strokeWidth={2.2} />
-            </View>
+
+          <View style={styles.verdictBody}>
             <View style={styles.verdictBadges}>
-              {sev && <SeverityBadge severity={scan.severity} />}
-              <StageBadge stage={scan.stage} />
+              <GlassBadge
+                label={scan.is_healthy ? 'निरोगी' : (sev?.label ?? 'रोगट')}
+                color={scan.is_healthy ? '#15803d' : sev?.color}
+                dot={scan.is_healthy ? '#4ade80' : sev?.dotColor}
+              />
+              {!scan.is_healthy && <StageBadge stage={scan.stage} />}
               {scan.confidence != null && (
-                <View style={styles.confChip}>
-                  <Text style={styles.confChipText}>{scan.confidence}% खात्री</Text>
-                </View>
+                <GlassBadge label={`${scan.confidence}% खात्री`} color={theme.colors.neutral[800]} />
               )}
             </View>
-            <Text style={styles.diseaseNameMr}>{scan.disease_name_mr || 'रोग आढळला'}</Text>
-            <Text style={styles.diseaseNameEn}>{scan.disease_name_en}</Text>
-            {scan.description_mr && (
-              <Text style={styles.verdictDesc}>{scan.description_mr}</Text>
-            )}
+            <Text style={styles.verdictTitle}>
+              {scan.is_healthy ? 'झाड निरोगी आहे' : scan.disease_name_mr || 'रोग आढळला'}
+            </Text>
+            {!scan.is_healthy && scan.disease_name_en ? (
+              <Text style={styles.verdictLatin}>{scan.disease_name_en}</Text>
+            ) : null}
           </View>
-        )}
+        </View>
+
+        {/* ---- DESCRIPTION ---- */}
+        {scan.description_mr ? (
+          <View style={styles.verdictDescCard}>
+            <Text style={styles.verdictDesc}>{scan.description_mr}</Text>
+            {isSampleScan(scan) ? (
+              <Text style={styles.verdictCredit}>{SAMPLE_PHOTO_CREDIT}</Text>
+            ) : null}
+          </View>
+        ) : null}
 
         {/* ---- SPEAK BUTTON ---- */}
         <TouchableOpacity
@@ -371,6 +389,12 @@ export default function ResultScreen() {
             </Text>
           </View>
         )}
+
+        {/* ---- WHATSAPP SHARE (quiet secondary action) ---- */}
+        <TouchableOpacity style={styles.shareButton} onPress={handleShare} activeOpacity={0.85}>
+          <Share2 size={18} color={theme.colors.primary[700]} strokeWidth={2.2} />
+          <Text style={styles.shareButtonText}>उपाय शेअर करा (WhatsApp)</Text>
+        </TouchableOpacity>
 
         {/* ---- RESCAN REMINDER CARD ---- */}
         {reminderDue && (
@@ -399,12 +423,6 @@ export default function ResultScreen() {
           </View>
         )}
 
-        {/* ---- WHATSAPP SHARE ---- */}
-        <TouchableOpacity style={styles.shareButton} onPress={handleShare} activeOpacity={0.85}>
-          <Share2 size={18} color="#15803d" strokeWidth={2.2} />
-          <Text style={styles.shareButtonText}>उपाय शेअर करा (WhatsApp)</Text>
-        </TouchableOpacity>
-
         {/* ---- TREATMENT ---- */}
         {!scan.is_healthy && treatments.length > 0 && (
           <View style={styles.section}>
@@ -420,7 +438,7 @@ export default function ResultScreen() {
                   <Text style={[styles.groupTitle, { color: '#dc2626' }]}>रासायनिक उपाय</Text>
                 </View>
                 {chemical.map((t, i) => (
-                  <TreatmentCard key={`c${i}`} t={t} accent="#dc2626" bg="#fef2f2" border="#fecaca" />
+                  <TreatmentCard key={`c${i}`} t={t} accent="#dc2626" />
                 ))}
               </View>
             )}
@@ -432,7 +450,7 @@ export default function ResultScreen() {
                   <Text style={[styles.groupTitle, { color: '#16a34a' }]}>सेंद्रिय उपाय</Text>
                 </View>
                 {organic.map((t, i) => (
-                  <TreatmentCard key={`o${i}`} t={t} accent="#16a34a" bg="#f0fdf4" border="#bbf7d0" />
+                  <TreatmentCard key={`o${i}`} t={t} accent={theme.colors.primary[600]} />
                 ))}
               </View>
             )}
@@ -504,19 +522,12 @@ export default function ResultScreen() {
   );
 }
 
-function TreatmentCard({
-  t,
-  accent,
-  bg,
-  border,
-}: {
-  t: TreatmentOption;
-  accent: string;
-  bg: string;
-  border: string;
-}) {
+function TreatmentCard({ t, accent }: { t: TreatmentOption; accent: string }) {
   return (
-    <View style={[styles.treatmentCard, { backgroundColor: bg, borderColor: border }]}>
+    <View style={styles.treatmentCard}>
+      {/* One coloured rail instead of a filled card: the treatment list stays
+          calm and the colour still reads as chemical (red) vs organic (green). */}
+      <SeverityRail color={accent} />
       <Text style={[styles.medicine, { color: accent }]}>{t.medicine}</Text>
       <View style={styles.treatmentRow}>
         <Text style={styles.treatmentLabel}>प्रमाण:</Text>
@@ -534,7 +545,7 @@ function TreatmentCard({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.surface.page,
   },
   navBar: {
     flexDirection: 'row',
@@ -544,7 +555,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.surface.raised,
   },
   navButton: {
     width: 40,
@@ -554,7 +565,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   navTitle: {
-    fontSize: 17,
+    ...theme.type.h3,
     fontFamily: theme.fonts.semiBold,
     color: theme.colors.textPrimary,
   },
@@ -582,11 +593,66 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.semiBold,
     color: theme.colors.white,
   },
-  photo: {
-    width: '100%',
-    height: 200,
-    borderRadius: 14,
-    marginTop: 16,
+  verdictHero: {
+    marginTop: 20,
+    height: 236,
+    borderRadius: theme.radius.xl,
+    overflow: 'hidden',
+    backgroundColor: theme.colors.primary[800],
+    justifyContent: 'flex-end',
+    ...theme.elevation.hero,
+  },
+  verdictPhoto: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  verdictLeaf: {
+    position: 'absolute',
+    right: -28,
+    top: -24,
+    transform: [{ rotate: '16deg' }],
+  },
+  verdictBody: {
+    padding: 18,
+  },
+  verdictBadges: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+  },
+  verdictTitle: {
+    ...theme.type.display,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.white,
+  },
+  verdictLatin: {
+    ...theme.type.latin,
+    fontFamily: theme.fonts.medium,
+    color: 'rgba(255,255,255,0.80)',
+    marginTop: 2,
+  },
+  verdictDescCard: {
+    marginTop: 12,
+    backgroundColor: theme.surface.raised,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    padding: 16,
+  },
+  verdictDesc: {
+    ...theme.type.body,
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.textPrimary,
+  },
+  verdictCredit: {
+    ...theme.type.tiny,
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.textTertiary,
+    marginTop: 10,
   },
   offlineBanner: {
     flexDirection: 'row',
@@ -606,80 +672,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.medium,
     color: '#92400e',
     lineHeight: 17,
-  },
-  verdictCard: {
-    marginTop: 16,
-    padding: 20,
-    borderRadius: 16,
-    borderWidth: 1.5,
-    alignItems: 'center',
-  },
-  verdictHealthy: {
-    backgroundColor: '#f0fdf4',
-    borderColor: '#bbf7d0',
-  },
-  verdictDisease: {
-    backgroundColor: theme.colors.card,
-    borderColor: '#fecaca',
-  },
-  verdictIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#dcfce7',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  verdictBadges: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  confChip: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 9999,
-    backgroundColor: theme.colors.neutral[100],
-  },
-  confChipText: {
-    fontSize: 12,
-    fontFamily: theme.fonts.semiBold,
-    color: theme.colors.neutral[700],
-  },
-  verdictTitle: {
-    fontSize: 20,
-    fontFamily: theme.fonts.bold,
-    textAlign: 'center',
-  },
-  verdictConfidence: {
-    marginTop: 4,
-    fontSize: 13,
-    fontFamily: theme.fonts.medium,
-    color: theme.colors.textSecondary,
-  },
-  diseaseNameMr: {
-    fontSize: 22,
-    fontFamily: theme.fonts.bold,
-    color: theme.colors.textPrimary,
-    textAlign: 'center',
-  },
-  diseaseNameEn: {
-    fontSize: 13,
-    fontFamily: theme.fonts.medium,
-    color: theme.colors.textSecondary,
-    marginTop: 2,
-    marginBottom: 8,
-  },
-  verdictDesc: {
-    marginTop: 8,
-    fontSize: 14,
-    fontFamily: theme.fonts.regular,
-    color: theme.colors.textSecondary,
-    lineHeight: 21,
-    textAlign: 'center',
   },
   speakButton: {
     flexDirection: 'row',
@@ -705,11 +697,11 @@ const styles = StyleSheet.create({
     color: theme.colors.white,
   },
   reminderCard: {
-    marginTop: 24,
-    backgroundColor: '#fffbeb',
+    marginTop: 20,
+    backgroundColor: theme.colors.accent[50],
     borderWidth: 1,
-    borderColor: '#fcd34d',
-    borderRadius: 14,
+    borderColor: theme.colors.accent[200],
+    borderRadius: theme.radius.lg,
     padding: 14,
   },
   reminderRow: {
@@ -771,17 +763,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    marginTop: 10,
-    backgroundColor: '#dcfce7',
+    marginTop: 12,
+    backgroundColor: theme.surface.raised,
     borderWidth: 1.5,
-    borderColor: '#22c55e',
-    borderRadius: 14,
-    paddingVertical: 12,
+    borderColor: theme.colors.primary[200],
+    borderRadius: theme.radius.md,
+    height: 50,
   },
   shareButtonText: {
-    fontSize: 14,
+    ...theme.type.bodySm,
     fontFamily: theme.fonts.semiBold,
-    color: '#15803d',
+    color: theme.colors.primary[700],
   },
   voiceWarnBox: {
     marginTop: 10,
@@ -808,7 +800,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   sectionTitle: {
-    fontSize: 17,
+    ...theme.type.h2,
     fontFamily: theme.fonts.semiBold,
     color: theme.colors.textPrimary,
   },
@@ -826,10 +818,14 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.semiBold,
   },
   treatmentCard: {
-    borderRadius: 14,
-    borderWidth: 1,
-    padding: 14,
+    position: 'relative',
+    backgroundColor: theme.surface.inset,
+    borderRadius: theme.radius.md,
+    paddingVertical: 14,
+    paddingLeft: 18,
+    paddingRight: 14,
     marginBottom: 8,
+    overflow: 'hidden',
   },
   medicine: {
     fontSize: 16,
@@ -849,9 +845,9 @@ const styles = StyleSheet.create({
   treatmentValue: {
     flex: 1,
     fontSize: 14,
+    lineHeight: 22,
     fontFamily: theme.fonts.medium,
     color: theme.colors.textPrimary,
-    lineHeight: 19,
   },
   treatmentNotes: {
     marginTop: 6,
@@ -861,7 +857,7 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
   preventionCard: {
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.surface.raised,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: theme.colors.border,
@@ -882,13 +878,13 @@ const styles = StyleSheet.create({
   preventionText: {
     flex: 1,
     fontSize: 14,
+    lineHeight: 22,
     fontFamily: theme.fonts.regular,
     color: theme.colors.textPrimary,
-    lineHeight: 21,
   },
   metaCard: {
     marginTop: 24,
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.surface.raised,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: theme.colors.border,

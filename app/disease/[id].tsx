@@ -137,7 +137,7 @@ function Section({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.surface.page,
   },
   navBar: {
     flexDirection: 'row',
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.surface.raised,
   },
   navButton: {
     width: 40,
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   navTitle: {
-    fontSize: 17,
+    ...theme.type.h2,
     fontFamily: theme.fonts.semiBold,
     color: theme.colors.textPrimary,
     flex: 1,
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   },
   heroCard: {
     marginTop: 16,
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.surface.raised,
     borderRadius: 14,
     borderLeftWidth: 5,
     borderWidth: 1,
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     padding: 18,
   },
   nameMr: {
-    fontSize: 22,
+    ...theme.type.h1,
     fontFamily: theme.fonts.bold,
     color: theme.colors.textPrimary,
   },
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
   },
   sectionCard: {
-    backgroundColor: theme.colors.card,
+    backgroundColor: theme.surface.raised,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: theme.colors.border,
