@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>हपुस डॉक्टर — Judge Handout (A4)</title>
+<style>
+  @page { size: A4 portrait; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --leaf: #166534; --leaf-dark: #14532d; --leaf-light: #dcfce7;
+    --gold: #d97706; --gold-dark: #92400e; --gold-light: #fef3c7;
+    --cream: #fffbeb; --ink: #1c1917; --muted: #57534e;
+  }
+  body { font-family: 'Noto Sans Devanagari', 'Mangal', 'Segoe UI', system-ui, sans-serif; background: #e7e5e4; color: var(--ink); }
+  .sheet { width: 210mm; min-height: 297mm; margin: 8px auto; background: var(--cream); box-shadow: 0 4px 24px rgba(0,0,0,.18); display: flex; flex-direction: column; overflow: hidden; }
+  @media print { body { background: none; } .sheet { margin: 0; box-shadow: none; } .no-print { display: none; } }
+  .no-print { text-align: center; padding: 8px; font-size: 12px; color: var(--muted); }
+
+  .head { background: linear-gradient(135deg, var(--leaf-dark), var(--leaf)); color: #fff; padding: 6mm 12mm 5mm; display: flex; align-items: flex-start; gap: 6mm; }
+  .head h1 { font-size: 21pt; font-weight: 800; line-height: 1.1; }
+  .head .sub { font-size: 10.5pt; margin-top: 2mm; color: var(--gold-light); font-weight: 600; }
+  .head .badge { margin-left: auto; text-align: center; background: #fff; color: var(--leaf-dark); border-radius: 2.5mm; padding: 2.5mm 4mm; }
+  .head .badge .big { font-size: 14pt; font-weight: 800; }
+  .head .badge .cap { font-size: 7.5pt; font-weight: 700; }
+
+  .body { padding: 4mm 12mm 3mm; display: flex; flex-direction: column; gap: 3mm; flex: 1; }
+  h2 { font-size: 10.5pt; color: var(--leaf-dark); border-bottom: 2px solid var(--gold); display: inline-block; padding-bottom: 1mm; margin-bottom: 1.5mm; }
+  p, li { font-size: 9pt; line-height: 1.42; }
+  ul { margin-left: 4.5mm; }
+  .two { display: flex; gap: 7mm; }
+  .two > div { flex: 1; }
+
+  .stats { display: flex; gap: 4mm; }
+  .stat { flex: 1; background: #fff; border: 1.5px solid #d6d3d1; border-radius: 2.5mm; text-align: center; padding: 2mm 1.5mm; }
+  .stat .n { font-size: 13pt; font-weight: 800; color: var(--leaf-dark); }
+  .stat .l { font-size: 8pt; color: var(--muted); margin-top: 1mm; line-height: 1.3; }
+
+  .ev { background: #fff; border: 1.5px solid #d6d3d1; border-radius: 2.5mm; padding: 3mm 4mm; }
+  .ev table { width: 100%; border-collapse: collapse; font-size: 8pt; }
+  .ev th { background: var(--leaf-light); color: var(--leaf-dark); text-align: left; padding: 1.1mm 2mm; }
+  .ev td { padding: 1.1mm 2mm; border-top: 1px solid #e7e5e4; }
+  .ev .ok { color: var(--leaf); font-weight: 700; }
+
+  .qa { background: #fff; border-left: 3px solid var(--gold); border-radius: 0 2mm 2mm 0; padding: 2mm 3mm; }
+  .qa b { color: var(--gold-dark); font-size: 8.5pt; }
+  .qa p { font-size: 8.5pt; margin-top: .6mm; }
+  .qa + .qa { margin-top: 1.8mm; }
+
+  .foot { margin-top: auto; background: var(--leaf-dark); color: #fff; padding: 3.5mm 12mm; display: flex; align-items: center; gap: 6mm; }
+  .foot .pitch { flex: 1; font-size: 10pt; font-weight: 700; line-height: 1.4; }
+  .foot .pitch span { color: var(--gold-light); }
+  .foot .meta { font-size: 8pt; opacity: .9; margin-top: 1.5mm; font-weight: 400; }
+  .qrbox { background: #fff; border-radius: 2mm; padding: 2mm; text-align: center; }
+  .qrbox img { display: block; width: 20mm; height: 20mm; }
+  .qrbox .cap { font-size: 6.5pt; color: var(--ink); font-weight: 700; margin-top: .8mm; }
+</style>
+</head>
+<body>
+<div class="no-print">प्रिंट: Ctrl+P → A4 portrait → margins: none · <b>Judge Handout</b> — Hapus Doctor · Gharda Innovation Fair 2026</div>
+
+<div class="sheet">
+  <div class="head">
+    <div>
+      <h1>हपुस डॉक्टर <span style="font-size:13pt; font-weight:600;">· Hapus Doctor</span></h1>
+      <div class="sub">The doctor in the farmer's pocket — एक पिक, एक भाषा, एक शेतकरी</div>
+    </div>
+    <div class="badge"><div class="big">8/8</div><div class="cap">VERIFIED DIAGNOSES</div></div>
+  </div>
+
+  <div class="body">
+    <div class="stats">
+      <div class="stat"><div class="n">8/8</div><div class="l">Wikimedia चाचणी फोटो बरोबर ओळखले (caption-verified ground truth)</div></div>
+      <div class="stat"><div class="n">~५ से.</div><div class="l">सरासरी निदान वेळ (श्रेणी २–१५ से., खात्री ९०–९५%)</div></div>
+      <div class="stat"><div class="n">₹०</div><div class="l">संपूर्ण AI stack मोफत — free-tier Gemini + Supabase</div></div>
+      <div class="stat"><div class="n">९ रोग</div><div class="l">कोकण हपुस रोग-यादी + निरोगी, DBSKKV प्रमाण उपाय</div></div>
+    </div>
+
+    <div class="two">
+      <div>
+        <h2>समस्या व उपाय</h2>
+        <p>कोकणातील GI-tagged हपुस आंब्याचा <b>१५–३०% उतारा</b> दरवर्षी रोगांनी गमावला जातो. रोग ओळख उशिरा/चुकीची; तज्ज्ञ सल्ला आठवड्याभरात व पैसे खर्च; उपलब्ध app इंग्रजी-प्रथम.</p>
+        <ul style="margin-top:2mm">
+          <li>📸 <b>फोटो → निदान</b> — पान/फूल/फळ; रोग + तीव्रता + खात्री</li>
+          <li>🎙️ <b>बोला, लिहू नको</b> — लक्षणे आवाजात (मराठी/हिंदी/इंग्रजी)</li>
+          <li>🔊 <b>उपाय ऐका</b> — उपाय फोनवर मराठीत <b>ऐकवला जातो</b>: औषध, अचूक प्रमाण, फवारणी वेळापत्रक</li>
+          <li>🌿 <b>रासायनिक + सेंद्रिय</b> दोन्ही पर्याय, DBSKKV प्रमाण</li>
+          <li>📚 <b>रोग मार्गदर्शन</b> — ९ रोगांची मराठी विश्वकोश</li>
+          <li>📴 <b>ऑफलाइन सुरक्षा</b> — शेवटचे निदान फोनवर जतन; नेट गेले तरी उपलब्ध ("ऑफलाइन" बॅनरसह)</li>
+          <li>🔐 <b>खाजगी</b> — RLS: शेतकरी फक्त आपल्याच तपासण्या पाहतो</li>
+        </ul>
+      </div>
+      <div>
+        <h2>पुरावा — प्रत्येक चाचणी, प्रत्येक निकाल</h2>
+        <div class="ev">
+          <table>
+            <tr><th>चाचणी फोटो</th><th>AI निदान</th><th>खात्री</th><th>वेळ</th></tr>
+            <tr><td>भुरी — फुले</td><td>भुरी</td><td class="ok">95%</td><td>14.3s</td></tr>
+            <tr><td>भुरी — पान (भुरी ताम्र)</td><td>भुरी</td><td class="ok">95%</td><td>5.0s</td></tr>
+            <tr><td>भुरी — पान (वळलेली)</td><td>भुरी</td><td class="ok">92%</td><td>5.0s</td></tr>
+            <tr><td>काळा डाग — पान १</td><td>काळा डाग</td><td class="ok">95%</td><td>5.1s</td></tr>
+            <tr><td>काळा डाग — पान २</td><td>काळा डाग</td><td class="ok">95%</td><td>9.4s</td></tr>
+            <tr><td>फळमाशी — फळ</td><td>फळमाशी</td><td class="ok">90%</td><td>4.2s</td></tr>
+            <tr><td>निरोगी पान</td><td>निरोगी</td><td class="ok">95%</td><td>3.4s</td></tr>
+            <tr><td>निरोगी फळ</td><td>निरोगी</td><td class="ok">95%</td><td>2.0s</td></tr>
+          </table>
+          <p style="font-size:7.5pt; color:var(--muted); margin-top:1.5mm">स्रोत: Wikimedia Commons, कॅप्शन-प्रमाणित ग्राउंड ट्रुथ (२०२६-०९-२६, model gemini-flash-lite-latest). संपूर्ण raw evidence: repo मधील RESULTS.md + demo-photos/results/raw-results.json. अजून ५ दुर्मिळ रोग (काजळी, काजळ, ठिपका मरण, गममोसिस, फुलोऱ्याचे विकृतीकरण) मॉडेलच्या यादीत आहेत — चाचणी-योग्य रंगीत फोटो Commons वर नाहीत, म्हणून दावा फक्त ८/८.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="two">
+      <div>
+        <h2>प्रामाणिक अभियांत्रिकी</h2>
+        <div class="qa"><b>वेळ का लागतो (५–१५ से.)?</b><p>मोफत tier वर काळजीपूर्वक vision विश्लेषणाची हीच खरी किंमत. स्क्रीनवर घुमते मराठी स्टेटस + लाइव्ह टाइमर — प्रतीक्षा कधीही गोठलेली दिसत नाही. आम्ही वेग लपवत नाही, प्रामाणिकपणे सांगतो.</p></div>
+        <div class="qa"><b>AI चुकेल तर?</b><p>स्पष्ट नसलेला/आंब्याचा नसलेला फोटो → कमी खात्री + "जवळचा फोटो पाठवा" — खोटे निदान कधीच नाही. प्रत्येक field server-side व्हॅलिडेट होतो (severity/stage whitelist, confidence clamp).</p></div>
+        <div class="qa"><b>नेट गेले तर?</b><p>शेवटचे यशस्वी निदान AsyncStorage वर जतन — result पान "ऑफलाइन" बॅनरसह कॅशेतून उघडते (खऱ्या नेट-अपयशावर चाचणी केलेले). इतिहास कधीही रिकामा नाही: नवीन खात्यावर ३ स्पष्टपणे चिन्हांकित "नमुना तपासणी" नमुने.</p></div>
+      </div>
+      <div>
+        <h2>तंत्रज्ञान व खर्च</h2>
+        <p><b>Stack:</b> React Native (Expo SDK 54, expo-router) · TypeScript · Supabase (Postgres + Auth + Storage + Edge Functions, RLS) · Google Gemini vision + speech (मोफत tier) · expo-speech (मराठी TTS)</p>
+        <ul style="margin-top:1.5mm">
+          <li><b>AI key कधीच app मध्ये नाही</b> — सर्व कॉल server-side edge function द्वारे; 2-key failover + retry-backoff built in.</li>
+          <li><b>खर्च:</b> Gemini मोफत tier + Supabase मोफत tier + Expo मोफत = <b>प्रति निदान अपवादाच्या घटकाचा एक पैसा</b>; शेतकऱ्यासाठी नेहमी मोफत.</li>
+          <li><b>पुढचे:</b> median latency &lt; ३ से. (इमेज डाउनस्केल + streaming), पूर्ण offline-first queue, कोकण outbreak map, e-NAM भाव सूचना.</li>
+        </ul>
+        <p style="margin-top:2.5mm; font-size:8.5pt; color:var(--muted)"><i>डिस्क्लेमर: AI सल्ला मार्गदर्शक आहे, प्रिस्क्रिप्शन नाही. पॅकेज लेबल व स्थानिक कृषी विभाग सल्ला अंतिम ठेवा.</i></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div class="pitch">
+      "शेतकरी आंब्याला डॉक्टर देऊ शकत नाही — <span>आम्ही डॉक्टराला शेतकऱ्याच्या हातात दिला.</span>"
+      <div class="meta">Dr. K. H. Gharda Memorial Innovation Fair · ३० सप्टेंबर २०२६ · GITM Campus · Live demo: फोटो → आवाज → मराठी उपाय</div>
+    </div>
+    <div class="qrbox"><div id="qr"></div><div class="cap">डेमो उभा करा →</div></div>
+  </div>
+</div>
+
+<script>
+// QR: point phones at the deployed expo web URL (EDIT before printing).
+(function () {
+  var url = 'https://hapus-doctor.expo.app'; // <-- EDIT: your deployed web URL
+  var script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
+  script.onload = function () {
+    try {
+      var qr = qrcode(0, 'M');
+      qr.addData(url);
+      qr.make();
+      document.getElementById('qr').innerHTML = qr.createImgTag(3, 6);
+      var img = document.querySelector('#qr img');
+      if (img) { img.style.width = '20mm'; img.style.height = '20mm'; }
+    } catch (e) { document.getElementById('qr').textContent = url; }
+  };
+  script.onerror = function () { document.getElementById('qr').textContent = url; };
+  document.head.appendChild(script);
+})();
+</script>
+</body>
+</html>

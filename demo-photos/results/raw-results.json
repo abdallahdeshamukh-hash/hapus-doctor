@@ -1,0 +1,316 @@
+[
+ {
+  "file": "01-powdery-mildew-flowers.jpg",
+  "expected": "Powdery Mildew",
+  "got": "Powdery Mildew",
+  "confidence": 95,
+  "severity": "high",
+  "stage": "flower",
+  "stageOk": true,
+  "treatments": 2,
+  "latency_s": 14.3,
+  "attempts": 1,
+  "verdict": "PASS",
+  "raw": {
+   "is_healthy": false,
+   "disease_name_mr": "भुरी",
+   "disease_name_en": "Powdery Mildew",
+   "confidence": 95,
+   "severity": "high",
+   "stage": "flower",
+   "description_mr": "आंब्याच्या मोरावर बुरशीजन्य भुरी रोग झाला असून, फुलांवर पांढऱ्या रंगाची पावडर साचली आहे. यामुळे फुले सुकून गळतात व फळधारणा होत नाही, ज्यामुळे उत्पादनाचे मोठे नुकसान होऊ शकते.",
+   "treatment": [
+    {
+     "type": "chemical",
+     "medicine": "पाण्याच्या विद्राव्य गंधक ८०% डब्ल्यू.पी. (Wettable Sulphur)",
+     "dosage": "२.५ ग्रॅम प्रति १ लिटर पाणी",
+     "frequency": "१० ते १२ दिवसांच्या अंतराने २ ते ३ फवारण्या",
+     "notes": "फवारणी करताना झाडाचा मोहर पूर्ण भिजेल याची काळजी घ्या."
+    },
+    {
+     "type": "organic",
+     "medicine": "ताक आणि तांब्याचे भांडे प्रक्रिया किंवा हिंग फवारणी",
+     "dosage": "५ लिटर जुने ताक १५० लिटर पाण्यात मिसळून",
+     "frequency": "एक आड एक आठवडा",
+     "notes": "सेंद्रिय नियंत्रणासाठी सकाळच्या वेळी फवारणी करावी."
+    }
+   ],
+   "prevention_mr": [
+    "बाग स्वच्छ ठेवा आणि हवेचा खेळ चांगला राहण्यासाठी छाटणी करा.",
+    "ढगाळ हवामान असताना संरक्षणात्मक फवारणी आधीच करून ठेवा."
+   ],
+   "rescan_after_days": 7
+  }
+ },
+ {
+  "file": "02-powdery-mildew-leaf-blight.jpg",
+  "expected": "Powdery Mildew",
+  "got": "Powdery Mildew",
+  "confidence": 95,
+  "severity": "high",
+  "stage": "leaf",
+  "stageOk": true,
+  "treatments": 2,
+  "latency_s": 5,
+  "attempts": 1,
+  "verdict": "PASS",
+  "raw": {
+   "is_healthy": false,
+   "disease_name_mr": "भुरी",
+   "disease_name_en": "Powdery Mildew",
+   "confidence": 95,
+   "severity": "high",
+   "stage": "leaf",
+   "description_mr": "या रोगात आंब्याच्या पानांवर आणि पालवीवर पांढऱ्या रंगाची बुरशीची पावडर जमा होते. यामुळे पाने कडांनी मुरगळतात, सुकतात आणि अकाली गळतात. हा रोग कोकणातील दमट हवेत वेगाने पसरून उत्पादनाचे मोठे नुकसान करतो.",
+   "treatment": [
+    {
+     "type": "chemical",
+     "medicine": "पाण्यात विरघळणारे गंधक (Wettable Sulphur 80% WP)",
+     "dosage": "२.५ ग्रॅम प्रति १ लिटर पाणी",
+     "frequency": "१० ते १२ दिवसांच्या अंतराने २ ते ३ फवारण्या",
+     "notes": "फवारणी सकाळी किंवा संध्याकाळी थंड व हवामान स्वच्छ असताना करावी."
+    },
+    {
+     "type": "organic",
+     "medicine": "निम तेल (Neem Oil)",
+     "dosage": "५ मिलि प्रति १ लिटर पाणी",
+     "frequency": "रोगाची सुरुवात असताना दर ८ दिवसांनी एकदा",
+     "notes": "सेंद्रिय नियंत्रणासाठी आणि प्रादुर्भाव रोखण्यासाठी उपयुक्त."
+    }
+   ],
+   "prevention_mr": [
+    "बागेत हवा खेळती राहण्यासाठी योग्य छाटणी करावी.",
+    "रोगट पाने व मोहर गोळा करून नष्ट करावा."
+   ],
+   "rescan_after_days": 7
+  }
+ },
+ {
+  "file": "03-powdery-mildew-leaf-curling.jpg",
+  "expected": "Powdery Mildew",
+  "got": "Powdery Mildew",
+  "confidence": 92,
+  "severity": "high",
+  "stage": "leaf",
+  "stageOk": true,
+  "treatments": 2,
+  "latency_s": 5,
+  "attempts": 1,
+  "verdict": "PASS",
+  "raw": {
+   "is_healthy": false,
+   "disease_name_mr": "भुरी",
+   "disease_name_en": "Powdery Mildew",
+   "confidence": 92,
+   "severity": "high",
+   "stage": "leaf",
+   "description_mr": "आंब्याच्या पानांवर आणि पालवीवर पांढुरकी किंवा राखाडी रेषेची पावडरी भुकटी जमा झाली असून पाने सुरकुतली आहेत. हा बुरशीजन्य रोग असून दमट वातावरणामुळे झपाट्याने पसरतो, ज्यामुळे नवीन पालवी, मोहर आणि फळांचे प्रचंड नुकसान होते.",
+   "treatment": [
+    {
+     "type": "chemical",
+     "medicine": "पाण्यात विरघळणारे गंधक (Wettable Sulphur 80% WP)",
+     "dosage": "२.५ ग्रॅम प्रति १ लिटर पाणी",
+     "frequency": "१० ते १२ दिवसांच्या अंतराने २ ते ३ फवारण्या",
+     "notes": "फवारणी करताना झाडाचा प्रत्येक भाग नीट भिजेल याची काळजी घ्या."
+    },
+    {
+     "type": "organic",
+     "medicine": "निंबोळी तेल (Neem Oil 10000 ppm)",
+     "dosage": "५ मिलि प्रति १ लिटर पाणी",
+     "frequency": "आठवड्यातून एकदा",
+     "notes": "रोगाचा प्रादुर्भाव रोखण्यासाठी आणि सेंद्रिय नियंत्रणासाठी उपयुक्त."
+    }
+   ],
+   "prevention_mr": [
+    "बागेत हवा खेळती राहण्यासाठी छाटणी योग्य वेळी करावी.",
+    "रोगट पाने व मोहर गोळा करून नष्ट करावा."
+   ],
+   "rescan_after_days": 7
+  }
+ },
+ {
+  "file": "04-anthracnose-leaf-1.jpg",
+  "expected": "Anthracnose",
+  "got": "Anthracnose",
+  "confidence": 95,
+  "severity": "high",
+  "stage": "flower",
+  "stageOk": false,
+  "treatments": 2,
+  "latency_s": 5.1,
+  "attempts": 1,
+  "verdict": "PASS",
+  "raw": {
+   "is_healthy": false,
+   "disease_name_mr": "काळा डाग (अन्थ्राक्नोज)",
+   "disease_name_en": "Anthracnose",
+   "confidence": 95,
+   "severity": "high",
+   "stage": "flower",
+   "description_mr": "हा बुरशीमुळे होणारा रोग असून मोहर आणि पानांवर काळे डाग पडतात. यामुळे मोहर काळा होऊन गळतो आणि फळधारणा होत नाही, ज्यामुळे उत्पादनाचे मोठे नुकसान होते.",
+   "treatment": [
+    {
+     "type": "chemical",
+     "medicine": "कार्बेंडाझिम ५०% डब्लू.पी. (Carbendazim 50% WP)",
+     "dosage": "१ ग्रॅम प्रति १ लिटर पाणी",
+     "frequency": "१० ते १२ दिवसांच्या अंतराने २ ते ३ फवारण्या",
+     "notes": "फवारणी सकाळी किंवा संध्याकाळी करावी."
+    },
+    {
+     "type": "organic",
+     "medicine": "बोर्डो मिश्रण (Bordeaux Mixture १%)",
+     "dosage": "१० ग्रॅम मोरचूद आणि १० ग्रॅम चुना प्रति १ लिटर पाणी",
+     "frequency": "रोगाची सुरुवात असताना एकदा फवारणी करावी",
+     "notes": "द्रावण तयार करताना प्लास्टिकच्या भांड्याचा वापर करावा."
+    }
+   ],
+   "prevention_mr": [
+    "बागेत हवा खेळती ठेवावी आणि झाडांची छाटणी करावी.",
+    "रोगट फांद्या आणि मोहर काढून नष्ट करावे."
+   ],
+   "rescan_after_days": 10
+  }
+ },
+ {
+  "file": "05-anthracnose-leaf-2.jpg",
+  "expected": "Anthracnose",
+  "got": "Anthracnose",
+  "confidence": 95,
+  "severity": "high",
+  "stage": "fruit",
+  "stageOk": false,
+  "treatments": 2,
+  "latency_s": 9.4,
+  "attempts": 1,
+  "verdict": "PASS",
+  "raw": {
+   "is_healthy": false,
+   "disease_name_mr": "काळा डाग / आन्थ्रॅक्नोज",
+   "disease_name_en": "Anthracnose",
+   "confidence": 95,
+   "severity": "high",
+   "stage": "fruit",
+   "description_mr": "आंब्याच्या फळांवर स्पष्ट काळे किंवा गडद तपकिरी रंगाचे डाग पडले आहेत. हा बुरशीमुळे होणारा रोग असून दमट आणि पावसाळी हवामानात वेगाने पसरतो, ज्यामुळे फळांची प्रत खराब होते आणि बाजारभाव मिळत नाही.",
+   "treatment": [
+    {
+     "type": "chemical",
+     "medicine": "कार्बेन्डाझिम ५०% डब्लू.पी. (Carbendazim 50% WP)",
+     "dosage": "१ ग्रॅम प्रति १ लिटर पाणी",
+     "frequency": "८ ते १० दिवसांच्या अंतराने २ फवारण्या",
+     "notes": "फळांच्या काढणीपूर्वी सुरक्षित कालावधी पाळावा."
+    },
+    {
+     "type": "organic",
+     "medicine": "प्रतिकारशक्ती वाढवण्यासाठी नीम अर्क किंवा गोमूत्र फवारणी",
+     "dosage": "५ मिलि प्रति १ लिटर पाणी",
+     "frequency": "आवश्यकतेनुसार एकदा",
+     "notes": "सेंद्रिय नियंत्रणासाठी फळ पक्व होत असताना उपयुक्त."
+    }
+   ],
+   "prevention_mr": [
+    "झाडाची छाटणी करून बागेत हवा खेळती ठेवावी.",
+    "रोगट फळे आणि पाने गोळा करून नष्ट करावीत."
+   ],
+   "rescan_after_days": 7
+  }
+ },
+ {
+  "file": "06-fruit-fly.jpg",
+  "expected": "Fruit Fly",
+  "got": "Fruit Fly (Bactrocera dorsalis)",
+  "confidence": 90,
+  "severity": "high",
+  "stage": "fruit",
+  "stageOk": true,
+  "treatments": 2,
+  "latency_s": 4.2,
+  "attempts": 1,
+  "verdict": "PASS",
+  "raw": {
+   "is_healthy": false,
+   "disease_name_mr": "फळमाशी",
+   "disease_name_en": "Fruit Fly (Bactrocera dorsalis)",
+   "confidence": 90,
+   "severity": "high",
+   "stage": "fruit",
+   "description_mr": "छायाचित्रात आंबा पिकाचे नुकसान करणारी फळमाशी दिसत आहे. माशी पक्क्या किंवा पक्व होत असलेल्या आंब्यावर अंडी घालते, ज्यातून नंतर अळ्या बाहेर येतात आणि आंबा आतून सडतो. यामुळे फळांची प्रत खराब होऊन मोठी आर्थिक हानी होते.",
+   "treatment": [
+    {
+     "type": "chemical",
+     "medicine": "डेलटामेथ्रीन (Deltamethrin 2.8% EC)",
+     "dosage": "१ मिली प्रति १ लिटर पाणी",
+     "frequency": "आता एकदा फवारणी करा, गरज भासल्यास १० दिवसांनी पुन्हा",
+     "notes": "फळे काढणीच्या १५ दिवस आधी फवारणी बंद करा."
+    },
+    {
+     "type": "organic",
+     "medicine": "मिथाईल युजेनॉल ट्रॅप (Methyl Eugenol Trap)",
+     "dosage": "२ ते ५ सापळे प्रति एकर बागेत लावा",
+     "frequency": "संपूर्ण हंगामात सतत चालू ठेवा, दर २ महिन्यांनी ल्युर (औषध) बदला",
+     "notes": "या सापळ्यामुळे नरांचे नियंत्रण होऊन फळमाशीचा उपद्रव कमी होतो."
+    }
+   ],
+   "prevention_mr": [
+    "झाडाखाली पडलेली कुजलेली आणि किडलेली फळे गोळा करून जमिनीत खोल गाडून टाका.",
+    "फळ काढणीनंतर बागेची हलकी मशागत करा जेणेकरून जमिनीत असलेल्या कोष नष्ट होतील."
+   ],
+   "rescan_after_days": 7
+  }
+ },
+ {
+  "file": "07-healthy-leaf.jpg",
+  "expected": "Healthy",
+  "got": "Healthy",
+  "confidence": 95,
+  "severity": "low",
+  "stage": "leaf",
+  "stageOk": true,
+  "treatments": 0,
+  "latency_s": 3.4,
+  "attempts": 1,
+  "verdict": "PASS",
+  "raw": {
+   "is_healthy": true,
+   "disease_name_mr": "",
+   "disease_name_en": "",
+   "confidence": 95,
+   "severity": "low",
+   "stage": "leaf",
+   "description_mr": "छायाचित्रातील आंब्याची पाने निरोगी आणि तजेलदार दिसत आहेत. पानांवर कोणतीही बुरशी, कीटक किंवा रोगाची लक्षणे दिसून येत नाहीत.",
+   "treatment": [],
+   "prevention_mr": [
+    "झाडाभोवतील परिसर स्वच्छ ठेवा.",
+    "वेळेवर योग्य खत आणि पाणी व्यवस्थापन करा."
+   ],
+   "rescan_after_days": 14
+  }
+ },
+ {
+  "file": "08-healthy-fruit-alphonso.jpg",
+  "expected": "Healthy",
+  "got": "Healthy",
+  "confidence": 95,
+  "severity": "low",
+  "stage": "fruit",
+  "stageOk": true,
+  "treatments": 0,
+  "latency_s": 2,
+  "attempts": 1,
+  "verdict": "PASS",
+  "raw": {
+   "is_healthy": true,
+   "disease_name_mr": "",
+   "disease_name_en": "",
+   "confidence": 95,
+   "severity": "low",
+   "stage": "fruit",
+   "description_mr": "फोटोमध्ये दिसणारे हापूस आंबे पूर्णपणे निरोगी आणि स्वच्छ दिसत आहेत. आंब्यावर कोणतीही रोगाची लक्षणे किंवा डाग दिसून येत नाहीत.",
+   "treatment": [],
+   "prevention_mr": [
+    "फळांची काढणी योग्य वेळी आणि काळजीपूर्वक करावी.",
+    "काढणीनंतर फळे योग्य प्रकारे साठवावीत."
+   ],
+   "rescan_after_days": 7
+  }
+ }
+]

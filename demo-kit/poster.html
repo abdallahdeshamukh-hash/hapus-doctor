@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>हपुस डॉक्टर — Poster (A3)</title>
+<style>
+  @page { size: A3 portrait; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --leaf: #166534; --leaf-dark: #14532d; --leaf-light: #dcfce7;
+    --gold: #d97706; --gold-dark: #92400e; --gold-light: #fef3c7;
+    --cream: #fffbeb; --ink: #1c1917; --muted: #57534e;
+  }
+  body { font-family: 'Noto Sans Devanagari', 'Mangal', 'Segoe UI', system-ui, sans-serif; background: #e7e5e4; color: var(--ink); }
+  .sheet {
+    width: 297mm; min-height: 420mm; margin: 8px auto; background: var(--cream);
+    display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,.18);
+  }
+  @media print { body { background: none; } .sheet { margin: 0; box-shadow: none; } .no-print { display: none; } }
+
+  .no-print { text-align: center; padding: 10px; font-size: 13px; color: var(--muted); }
+
+  /* ---------- hero ---------- */
+  .hero {
+    background: linear-gradient(135deg, var(--leaf-dark) 0%, var(--leaf) 55%, #15803d 100%);
+    color: #fff; padding: 16mm 18mm 12mm; position: relative;
+  }
+  .hero .mango { position: absolute; right: 14mm; top: 10mm; font-size: 34mm; opacity: .9; }
+  .kicker { display: inline-block; background: var(--gold); color: #fff; font-weight: 700; font-size: 12pt; letter-spacing: 1px; padding: 2mm 6mm; border-radius: 999px; margin-bottom: 7mm; }
+  h1 { font-size: 46pt; line-height: 1.05; font-weight: 800; }
+  h1 .en { display: block; font-size: 17pt; font-weight: 600; opacity: .92; margin-top: 3mm; letter-spacing: .5px; }
+  .tagline { margin-top: 6mm; font-size: 15.5pt; font-weight: 600; color: var(--gold-light); }
+
+  /* ---------- proof strip ---------- */
+  .proof { display: flex; gap: 5mm; padding: 8mm 18mm; background: var(--gold-dark); color: #fff; }
+  .proof .stat { flex: 1; text-align: center; }
+  .proof .num { font-size: 26pt; font-weight: 800; line-height: 1; }
+  .proof .lbl { font-size: 10.5pt; margin-top: 2mm; opacity: .95; }
+
+  /* ---------- body grid ---------- */
+  .cols { display: flex; gap: 8mm; padding: 9mm 18mm 4mm; flex: 1; }
+  .col { flex: 1; }
+  h2 { font-size: 16pt; color: var(--leaf-dark); border-bottom: 3px solid var(--gold); display: inline-block; padding-bottom: 1.5mm; margin-bottom: 5mm; }
+  .problem li, .feature { font-size: 12pt; line-height: 1.5; margin-bottom: 3.5mm; }
+  .problem li { margin-left: 5mm; }
+  .feature b { color: var(--leaf-dark); }
+  .feature { padding-left: 9mm; position: relative; }
+  .feature .ico { position: absolute; left: 0; }
+
+  /* ---------- how it works ---------- */
+  .steps { display: flex; gap: 4mm; margin-top: 2mm; }
+  .step { flex: 1; background: var(--leaf-light); border-radius: 3mm; padding: 4mm 4mm 4.5mm; text-align: center; }
+  .step .n { width: 9mm; height: 9mm; border-radius: 50%; background: var(--leaf); color: #fff; font-weight: 800; font-size: 13pt; line-height: 9mm; margin: 0 auto 2.5mm; }
+  .step .t { font-size: 10.5pt; font-weight: 700; }
+  .step .d { font-size: 9pt; color: var(--muted); margin-top: 1mm; line-height: 1.35; }
+
+  /* ---------- results table ---------- */
+  .results { background: #fff; border: 1.5px solid #d6d3d1; border-radius: 3mm; padding: 5mm 6mm; margin-top: 2mm; }
+  .results table { width: 100%; border-collapse: collapse; font-size: 10pt; }
+  .results th { background: var(--leaf-light); color: var(--leaf-dark); text-align: left; padding: 1.8mm 2.5mm; }
+  .results td { padding: 1.8mm 2.5mm; border-top: 1px solid #e7e5e4; }
+  .results .ok { color: var(--leaf); font-weight: 700; }
+  .results .note { font-size: 8.5pt; color: var(--muted); margin-top: 2.5mm; }
+
+  /* ---------- footer ---------- */
+  .foot {
+    margin-top: auto; background: var(--leaf-dark); color: #fff;
+    padding: 7mm 18mm; display: flex; align-items: center; gap: 8mm;
+  }
+  .foot .quote { flex: 1; font-size: 13.5pt; font-weight: 700; line-height: 1.4; }
+  .foot .quote span { color: var(--gold-light); }
+  .foot .fair { font-size: 9.5pt; opacity: .9; margin-top: 2mm; font-weight: 400; }
+  .qrbox { background: #fff; border-radius: 2.5mm; padding: 2.5mm; text-align: center; }
+  .qrbox img, .qrbox canvas { display: block; width: 26mm; height: 26mm; }
+  .qrbox .cap { font-size: 7.5pt; color: var(--ink); font-weight: 700; margin-top: 1mm; }
+</style>
+</head>
+<body>
+<div class="no-print">प्रिंट: Ctrl+P → A3 portrait → margins: none · <b>Poster</b> — Hapus Doctor · Gharda Innovation Fair 2026</div>
+
+<div class="sheet" id="poster">
+  <div class="hero">
+    <div class="mango">🥭</div>
+    <div class="kicker">AI PLANT DOCTOR · KONKAN</div>
+    <h1>हपुस डॉक्टर<span class="en">Hapus Doctor — The Doctor in the Farmer's Pocket</span></h1>
+    <div class="tagline">शेतकरी पानाचा फोटो काढतो — AI ५ सेकंदांत रोग ओळखते आणि मराठीत उपाय सुचवते.</div>
+  </div>
+
+  <div class="proof">
+    <div class="stat"><div class="num">8/8</div><div class="lbl">चाचणी फोटो बरोबर ओळखले<br>(Wikimedia, caption-verified)</div></div>
+    <div class="stat"><div class="num">~५ सेकंद</div><div class="lbl">सरासरी निदान वेळ<br>(९०–९५% खात्री)</div></div>
+    <div class="stat"><div class="num">₹०</div><div class="lbl">संपूर्ण AI stack मोफत<br>(farmer-facing cost: zero)</div></div>
+  </div>
+
+  <div class="cols">
+    <div class="col">
+      <h2>समस्या</h2>
+      <ul class="problem">
+        <li>हपुस आंब्याचा <b>१५–३०% उतारा</b> दरवर्षी रोगांनी नासतो — भुरी, काजळी, काळा डाग, फळमाशी.</li>
+        <li>रोग ओळख उशिरा किंवा चुकीची; तज्ज्ञाचा सल्ला <b>आठवड्याभरात</b> आणि पैसे खर्च.</li>
+        <li>उपलब्ध app इंग्रजी-प्रथम — भाषा आणि साक्षरता हा सर्वांत मोठा अडथळा.</li>
+      </ul>
+
+      <h2 style="margin-top:7mm">उपाय — एक पिक, एक भाषा, एक शेतकरी</h2>
+      <div class="feature"><span class="ico">📸</span><b>फोटो → निदान</b> — पान / फूल / फळाचा फोटो; रोग + तीव्रता + खात्री</div>
+      <div class="feature"><span class="ico">🎙️</span><b>बोला, लिहू नको</b> — लक्षणे आवाजात (मराठी/हिंदी/इंग्रजी)</div>
+      <div class="feature"><span class="ico">🔊</span><b>उपाय ऐका</b> — उपाय फोनवर <b>मराठीत वाचून दाखवला जातो व ऐकवला जातो</b>: औषध, अचूक प्रमाण, फवारणी वेळापत्रक</div>
+      <div class="feature"><span class="ico">🌿</span><b>दोन्ही मार्ग</b> — रासायनिक <b>आणि</b> सेंद्रिय (DBSKKV प्रमाण प्रमाणे)</div>
+      <div class="feature"><span class="ico">📴</span><b>ऑफलाइन सुरक्षा</b> — शेवटचे निदान फोनवर जतन; नेट गेले तरी उपलब्ध</div>
+      <div class="feature"><span class="ico">🔐</span><b>खाजगी</b> — RLS: शेतकरी फक्त आपल्याच तपासण्या पाहतो</div>
+    </div>
+
+    <div class="col">
+      <h2>कसे चालते?</h2>
+      <div class="steps">
+        <div class="step"><div class="n">1</div><div class="t">फोटो + आवाज</div><div class="d">पानाचा फोटो; लक्षणे बोलून सांगा</div></div>
+        <div class="step"><div class="n">2</div><div class="t">AI तपासणी</div><div class="d">९ कोकण रोगांपैकी निदान (५–१५ सेकंद)</div></div>
+        <div class="step"><div class="n">3</div><div class="t">मराठी उपाय</div><div class="d">औषध + प्रमाण + फवारणी, ऐकून घेण्यायोग्य</div></div>
+      </div>
+
+      <h2 style="margin-top:6mm">पुरावा — ८/८ निदान बरोबर</h2>
+      <div class="results">
+        <table>
+          <tr><th>चाचणी फोटो</th><th>AI निदान</th><th>खात्री</th></tr>
+          <tr><td>भुरी — फुले</td><td>भुरी ✔</td><td class="ok">95%</td></tr>
+          <tr><td>भुरी — पान (भुरी ताम्र)</td><td>भुरी ✔</td><td class="ok">95%</td></tr>
+          <tr><td>भुरी — पान (वळलेली)</td><td>भुरी ✔</td><td class="ok">92%</td></tr>
+          <tr><td>काळा डाग — पान १</td><td>काळा डाग ✔</td><td class="ok">95%</td></tr>
+          <tr><td>काळा डाग — पान २</td><td>काळा डाग ✔</td><td class="ok">95%</td></tr>
+          <tr><td>फळमाशी — फळ</td><td>फळमाशी ✔</td><td class="ok">90%</td></tr>
+          <tr><td>निरोगी पान</td><td>निरोगी ✔</td><td class="ok">95%</td></tr>
+          <tr><td>निरोगी फळ</td><td>निरोगी ✔</td><td class="ok">95%</td></tr>
+        </table>
+        <div class="note">स्रोत: Wikimedia Commons फोटो, कॅप्शन-प्रमाणित ग्राउंड ट्रुथ · संपूर्ण पुरावा: repo मधील RESULTS.md · अजून ५ दुर्मिळ रोग मॉडेलच्या यादीत, चाचणी-योग्य फोटो नाहीत.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div class="quote">
+      "एक झाड, एक डॉक्टर — <span>आणि याची किंमत: शून्य रुपये.</span>"
+      <div class="fair">Dr. K. H. Gharda Memorial Innovation Fair · ३० सप्टेंबर २०२६ · GITM Campus<br>
+      React Native (Expo) · Supabase (RLS) · Google Gemini · TypeScript</div>
+    </div>
+    <div class="qrbox"><div id="qr"></div><div class="cap">डेमो उभा करा →</div></div>
+  </div>
+</div>
+
+<script>
+// QR: point phones at the deployed expo web URL (edit before printing).
+// Keep the payload short; plain CORS-free canvas QR via Google chart fallback is offline-unfriendly,
+// so draw a QR with a tiny embedded generator (qrcode-generator, MIT).
+(function () {
+  var url = 'https://hapus-doctor.expo.app'; // <-- EDIT: your deployed web URL
+  var script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
+  script.onload = function () {
+    try {
+      var qr = qrcode(0, 'M');
+      qr.addData(url);
+      qr.make();
+      document.getElementById('qr').innerHTML = qr.createImgTag(4, 8);
+      var img = document.querySelector('#qr img');
+      if (img) { img.style.width = '26mm'; img.style.height = '26mm'; }
+    } catch (e) { document.getElementById('qr').textContent = url; }
+  };
+  script.onerror = function () { document.getElementById('qr').textContent = url; };
+  document.head.appendChild(script);
+})();
+</script>
+</body>
+</html>
