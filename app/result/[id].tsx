@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import * as Speech from 'expo-speech';
 import { supabase, Scan, SEVERITY_CONFIG, STAGE_CONFIG, TreatmentOption } from '@/lib/supabase';
 import { theme } from '@/lib/theme';
 import { LoadingState, SeverityBadge, StageBadge } from '@/components/ui';
-import { cacheLastScan, getCachedLastScan, isSampleScan } from '@/lib/offline';
+import { cacheLastScan, getCachedLastScan, isSampleScan, setScanReminder, getScanReminder } from '@/lib/offline';
 import {
   ChevronLeft,
   Sparkles,
@@ -25,6 +25,7 @@ import {
   AlertTriangle,
   FlaskConical,
   Leaf,
+  Bell,
   CalendarClock,
   ShieldCheck,
   RotateCcw,
@@ -43,6 +44,8 @@ export default function ResultScreen() {
   // TTS: true when the device has no Devanagari-capable voice — Marathi text
   // would be skipped and the engine would speak only digits/punctuation.
   const [voiceUnavailable, setVoiceUnavailable] = useState(false);
+  // Local rescan/spray reminder: null = not saved yet on this device.
+  const [reminderSaved, setReminderSaved] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -144,6 +147,59 @@ export default function ResultScreen() {
     } catch {
       return true; // can't check → attempt to speak anyway
     }
+  }
+
+  // Rescan interval: rescan_after_days is not persisted, so estimate from
+  // severity (low→10, medium→8, high/critical→7) — consistent with the
+  // edge-function's 5–14 day guidance. Healthy scans need no reminder.
+  const rescanDays =
+    scan?.is_healthy
+      ? null
+      : scan?.severity === 'high' || scan?.severity === 'critical'
+        ? 7
+        : scan?.severity === 'medium'
+          ? 8
+          : 10;
+  const reminderDue = useMemo(() => {
+    if (!scan || !rescanDays) return null;
+    const d = new Date(new Date(scan.created_at).getTime() + rescanDays * 86_400_000);
+    return d;
+  }, [scan, rescanDays]);
+  const dueMr = reminderDue
+    ? reminderDue.toLocaleDateString('mr-IN', { day: 'numeric', month: 'long' })
+    : null;
+
+  useEffect(() => {
+    if (!scan) return;
+    (async () => {
+      const saved = await getScanReminder(scan.id);
+      setReminderSaved(!!saved);
+    })();
+  }, [scan]);
+
+  async function handleSaveReminder() {
+    if (!scan || !reminderDue) return;
+    await setScanReminder({
+      scanId: scan.id,
+      dueAt: reminderDue.toISOString(),
+      diseaseMr: scan.disease_name_mr,
+    });
+    setReminderSaved(true);
+  }
+
+  function openCalendar() {
+    if (!reminderDue) return;
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const day = `${reminderDue.getFullYear()}${pad(reminderDue.getMonth() + 1)}${pad(reminderDue.getDate())}`;
+    const next = new Date(reminderDue.getTime() + 86_400_000);
+    const dayAfter = `${next.getFullYear()}${pad(next.getMonth() + 1)}${pad(next.getDate())}`;
+    const params = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: scan?.disease_name_mr ? `फवारणी/पुन्हा तपासणी — ${scan.disease_name_mr}` : 'फवारणी/पुन्हा तपासणी',
+      dates: `${day}/${dayAfter}`,
+      details: 'हपुस डॉक्टर ॲपने सुचवलेली पुन्हा तपासणीची तारीख.',
+    });
+    Linking.openURL('https://calendar.google.com/calendar/render?' + params.toString()).catch(() => {});
   }
 
   // WhatsApp-ready plain text: diagnosis + both treatments + prevention.
@@ -312,6 +368,33 @@ export default function ResultScreen() {
               या फोनवर मराठी आवाज नाही. उपाय खाली लिहिलेला वाचा, किंवा फोनच्या
               Settings → Language मध्ये मराठी (किंवा हिंदी) आवाज ॲड करा.
             </Text>
+          </View>
+        )}
+
+        {/* ---- RESCAN REMINDER CARD ---- */}
+        {reminderDue && (
+          <View style={styles.reminderCard}>
+            <View style={styles.reminderRow}>
+              <CalendarClock size={18} color="#92400e" strokeWidth={2.2} />
+              <Text style={styles.reminderTitle}>पुन्हा तपासणीची आठवण</Text>
+            </View>
+            <Text style={styles.reminderText}>
+              {reminderSaved
+                ? `✓ आठवण जतन झाली — ${dueMr} ला (${rescanDays} दिवसांनी) झाड पुन्हा तपासा.`
+                : `उपाय सुरू केल्यानंतर ${rescanDays} दिवसांनी — ${dueMr} ला — झाड पुन्हा तपासा.`}
+            </Text>
+            <View style={styles.reminderActions}>
+              {!reminderSaved && (
+                <TouchableOpacity style={styles.reminderSaveBtn} onPress={handleSaveReminder} activeOpacity={0.85}>
+                  <Bell size={15} color="#92400e" strokeWidth={2.2} />
+                  <Text style={styles.reminderSaveText}>आठवण जतन करा</Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity style={styles.reminderCalBtn} onPress={openCalendar} activeOpacity={0.85}>
+                <CalendarClock size={15} color="#15803d" strokeWidth={2.2} />
+                <Text style={styles.reminderCalText}>कॅलेंडरमध्ये जोडा</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
 
@@ -619,6 +702,68 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: theme.fonts.semiBold,
     color: theme.colors.white,
+  },
+  reminderCard: {
+    marginTop: 24,
+    backgroundColor: '#fffbeb',
+    borderWidth: 1,
+    borderColor: '#fcd34d',
+    borderRadius: 14,
+    padding: 14,
+  },
+  reminderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 6,
+  },
+  reminderTitle: {
+    fontSize: 14,
+    fontFamily: theme.fonts.semiBold,
+    color: '#92400e',
+  },
+  reminderText: {
+    fontSize: 13,
+    fontFamily: theme.fonts.medium,
+    color: '#78350f',
+    lineHeight: 19,
+  },
+  reminderActions: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 10,
+  },
+  reminderSaveBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#fef3c7',
+    borderWidth: 1,
+    borderColor: '#f59e0b',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  reminderSaveText: {
+    fontSize: 12.5,
+    fontFamily: theme.fonts.semiBold,
+    color: '#92400e',
+  },
+  reminderCalBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#dcfce7',
+    borderWidth: 1,
+    borderColor: '#22c55e',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  reminderCalText: {
+    fontSize: 12.5,
+    fontFamily: theme.fonts.semiBold,
+    color: '#15803d',
   },
   shareButton: {
     flexDirection: 'row',

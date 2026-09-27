@@ -17,6 +17,7 @@ import { supabase, Scan } from './supabase';
 
 const LAST_SCAN_KEY = 'hapus.lastScan.v1';
 const SEED_KEY_PREFIX = 'hapus.seededScans.v1.';
+const REMINDER_PREFIX = 'hapus.reminder.v1.';
 
 // Concurrency guard: StrictMode double-mounts effects and a reload during
 // the insert could re-enter. Only one seed may ever run at a time per session.
@@ -47,6 +48,28 @@ export async function getCachedLastScan(): Promise<Scan | null> {
     return parsed && parsed.id ? parsed : null;
   } catch (err) {
     console.warn('getCachedLastScan failed (non-fatal):', err);
+    return null;
+  }
+}
+
+export type ScanReminder = { scanId: string; dueAt: string; diseaseMr: string | null };
+
+/** Persist a local rescan/spray reminder for one scan (fail-soft). */
+export async function setScanReminder(rem: ScanReminder): Promise<void> {
+  try {
+    await AsyncStorage.setItem(REMINDER_PREFIX + rem.scanId, JSON.stringify(rem));
+  } catch (err) {
+    console.warn('setScanReminder failed (non-fatal):', err);
+  }
+}
+
+/** The saved reminder for a scan, or null (fail-soft). */
+export async function getScanReminder(scanId: string): Promise<ScanReminder | null> {
+  try {
+    const raw = await AsyncStorage.getItem(REMINDER_PREFIX + scanId);
+    return raw ? (JSON.parse(raw) as ScanReminder) : null;
+  } catch (err) {
+    console.warn('getScanReminder failed (non-fatal):', err);
     return null;
   }
 }
