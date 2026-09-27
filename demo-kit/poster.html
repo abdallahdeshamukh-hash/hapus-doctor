@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="mr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>हपुस डॉक्टर — Poster (A3)</title>
+<title>Hapus Doctor — Poster (A3)</title>
 <style>
   @page { size: A3 portrait; margin: 0; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,7 +12,7 @@
     --gold: #d97706; --gold-dark: #92400e; --gold-light: #fef3c7;
     --cream: #fffbeb; --ink: #1c1917; --muted: #57534e;
   }
-  body { font-family: 'Noto Sans Devanagari', 'Mangal', 'Segoe UI', system-ui, sans-serif; background: #e7e5e4; color: var(--ink); }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #e7e5e4; color: var(--ink); }
   .sheet {
     width: 297mm; min-height: 420mm; margin: 8px auto; background: var(--cream);
     display: flex; flex-direction: column; overflow: hidden;
@@ -30,7 +30,7 @@
   .hero .mango { position: absolute; right: 14mm; top: 10mm; font-size: 34mm; opacity: .9; }
   .kicker { display: inline-block; background: var(--gold); color: #fff; font-weight: 700; font-size: 12pt; letter-spacing: 1px; padding: 2mm 6mm; border-radius: 999px; margin-bottom: 7mm; }
   h1 { font-size: 46pt; line-height: 1.05; font-weight: 800; }
-  h1 .en { display: block; font-size: 17pt; font-weight: 600; opacity: .92; margin-top: 3mm; letter-spacing: .5px; }
+  h1 .mr { display: block; font-size: 17pt; font-weight: 600; opacity: .92; margin-top: 3mm; letter-spacing: .5px; }
   .tagline { margin-top: 6mm; font-size: 15.5pt; font-weight: 600; color: var(--gold-light); }
 
   /* ---------- proof strip ---------- */
@@ -78,82 +78,81 @@
 </style>
 </head>
 <body>
-<div class="no-print">प्रिंट: Ctrl+P → A3 portrait → margins: none · <b>Poster</b> — Hapus Doctor · Gharda Innovation Fair 2026</div>
+<div class="no-print">Print: Ctrl+P → A3 portrait → margins: none · <b>Poster</b> — Hapus Doctor · Gharda Innovation Fair 2026</div>
 
 <div class="sheet" id="poster">
   <div class="hero">
     <div class="mango">🥭</div>
     <div class="kicker">AI PLANT DOCTOR · KONKAN</div>
-    <h1>हपुस डॉक्टर<span class="en">Hapus Doctor — The Doctor in the Farmer's Pocket</span></h1>
-    <div class="tagline">शेतकरी पानाचा फोटो काढतो — AI ५ सेकंदांत रोग ओळखते आणि मराठीत उपाय सुचवते.</div>
+    <h1>Hapus Doctor<span class="mr">हपुस डॉक्टर — The Doctor in the Farmer's Pocket</span></h1>
+    <div class="tagline">A farmer photographs a leaf — AI identifies the disease in ~5 seconds and prescribes the treatment in Marathi.</div>
   </div>
 
   <div class="proof">
-    <div class="stat"><div class="num">8/8</div><div class="lbl">चाचणी फोटो बरोबर ओळखले<br>(Wikimedia, caption-verified)</div></div>
-    <div class="stat"><div class="num">~५ सेकंद</div><div class="lbl">सरासरी निदान वेळ<br>(९०–९५% खात्री)</div></div>
-    <div class="stat"><div class="num">₹०</div><div class="lbl">संपूर्ण AI stack मोफत<br>(farmer-facing cost: zero)</div></div>
+    <div class="stat"><div class="num">8/8</div><div class="lbl">test photos diagnosed correctly<br>(Wikimedia, caption-verified)</div></div>
+    <div class="stat"><div class="num">~5 sec</div><div class="lbl">median diagnosis time<br>(90–95% confidence)</div></div>
+    <div class="stat"><div class="num">₹0</div><div class="lbl">entire AI stack is free<br>(farmer-facing cost: zero)</div></div>
   </div>
 
   <div class="cols">
     <div class="col">
-      <h2>समस्या</h2>
+      <h2>The Problem</h2>
       <ul class="problem">
-        <li>हपुस आंब्याचा <b>१५–३०% उतारा</b> दरवर्षी रोगांनी नासतो — भुरी, काजळी, काळा डाग, फळमाशी.</li>
-        <li>रोग ओळख उशिरा किंवा चुकीची; तज्ज्ञाचा सल्ला <b>आठवड्याभरात</b> आणि पैसे खर्च.</li>
-        <li>उपलब्ध app इंग्रजी-प्रथम — भाषा आणि साक्षरता हा सर्वांत मोठा अडथळा.</li>
+        <li>Konkan's GI-tagged Alphonso mango loses <b>15–30% of yield every year</b> to disease — powdery mildew, mango hopper, anthracnose, fruit fly.</li>
+        <li>Identification is late or wrong; expert advice takes <b>a week or more</b> and costs money.</li>
+        <li>Existing apps are English-first — language and literacy are the biggest barriers.</li>
       </ul>
 
-      <h2 style="margin-top:7mm">उपाय — एक पिक, एक भाषा, एक शेतकरी</h2>
-      <div class="feature"><span class="ico">📸</span><b>फोटो → निदान</b> — पान / फूल / फळाचा फोटो; रोग + तीव्रता + खात्री</div>
-      <div class="feature"><span class="ico">🎙️</span><b>बोला, लिहू नको</b> — लक्षणे आवाजात (मराठी/हिंदी/इंग्रजी)</div>
-      <div class="feature"><span class="ico">🔊</span><b>उपाय ऐका</b> — उपाय फोनवर <b>मराठीत वाचून दाखवला जातो व ऐकवला जातो</b>: औषध, अचूक प्रमाण, फवारणी वेळापत्रक</div>
-      <div class="feature"><span class="ico">🌿</span><b>दोन्ही मार्ग</b> — रासायनिक <b>आणि</b> सेंद्रिय (DBSKKV प्रमाण प्रमाणे)</div>
-      <div class="feature"><span class="ico">📴</span><b>ऑफलाइन सुरक्षा</b> — शेवटचे निदान फोनवर जतन; नेट गेले तरी उपलब्ध</div>
-      <div class="feature"><span class="ico">🔐</span><b>खाजगी</b> — RLS: शेतकरी फक्त आपल्याच तपासण्या पाहतो</div>
+      <h2 style="margin-top:7mm">The Solution — one crop, one language, one farmer</h2>
+      <div class="feature"><span class="ico">📸</span><b>Photo → diagnosis</b> — leaf / flower / fruit photo; disease + severity + confidence</div>
+      <div class="feature"><span class="ico">🎙️</span><b>Talk, don't type</b> — symptoms by voice (Marathi / Hindi / English)</div>
+      <div class="feature"><span class="ico">🔊</span><b>Hear the cure</b> — the treatment is <b>read aloud in Marathi</b>: medicine, exact dosage, spray schedule</div>
+      <div class="feature"><span class="ico">🌿</span><b>Both paths</b> — chemical AND organic options, DBSKKV-recommended dosages</div>
+      <div class="feature"><span class="ico">📴</span><b>Offline safety</b> — the last diagnosis is saved on the phone; it survives dead networks</div>
+      <div class="feature"><span class="ico">📤</span><b>Share to WhatsApp</b> — forward the full treatment plan to an FPO group or expert</div>
+      <div class="feature"><span class="ico">🔐</span><b>Private by design</b> — row-level security: a farmer sees only their own scans</div>
     </div>
 
     <div class="col">
-      <h2>कसे चालते?</h2>
+      <h2>How it works</h2>
       <div class="steps">
-        <div class="step"><div class="n">1</div><div class="t">फोटो + आवाज</div><div class="d">पानाचा फोटो; लक्षणे बोलून सांगा</div></div>
-        <div class="step"><div class="n">2</div><div class="t">AI तपासणी</div><div class="d">९ कोकण रोगांपैकी निदान (५–१५ सेकंद)</div></div>
-        <div class="step"><div class="n">3</div><div class="t">मराठी उपाय</div><div class="d">औषध + प्रमाण + फवारणी, ऐकून घेण्यायोग्य</div></div>
+        <div class="step"><div class="n">1</div><div class="t">Photo + voice</div><div class="d">Photograph the leaf; describe symptoms aloud</div></div>
+        <div class="step"><div class="n">2</div><div class="t">AI diagnosis</div><div class="d">Identified from 9 Konkan diseases (5–15 seconds)</div></div>
+        <div class="step"><div class="n">3</div><div class="t">Marathi treatment</div><div class="d">Medicine + dosage + schedule, read aloud &amp; shareable</div></div>
       </div>
 
-      <h2 style="margin-top:6mm">पुरावा — ८/८ निदान बरोबर</h2>
+      <h2 style="margin-top:6mm">Evidence — 8/8 diagnoses correct</h2>
       <div class="results">
         <table>
-          <tr><th>चाचणी फोटो</th><th>AI निदान</th><th>खात्री</th></tr>
-          <tr><td>भुरी — फुले</td><td>भुरी ✔</td><td class="ok">95%</td></tr>
-          <tr><td>भुरी — पान (भुरी ताम्र)</td><td>भुरी ✔</td><td class="ok">95%</td></tr>
-          <tr><td>भुरी — पान (वळलेली)</td><td>भुरी ✔</td><td class="ok">92%</td></tr>
-          <tr><td>काळा डाग — पान १</td><td>काळा डाग ✔</td><td class="ok">95%</td></tr>
-          <tr><td>काळा डाग — पान २</td><td>काळा डाग ✔</td><td class="ok">95%</td></tr>
-          <tr><td>फळमाशी — फळ</td><td>फळमाशी ✔</td><td class="ok">90%</td></tr>
-          <tr><td>निरोगी पान</td><td>निरोगी ✔</td><td class="ok">95%</td></tr>
-          <tr><td>निरोगी फळ</td><td>निरोगी ✔</td><td class="ok">95%</td></tr>
+          <tr><th>Test photo</th><th>AI diagnosis</th><th>Confidence</th></tr>
+          <tr><td>Powdery mildew — flowers</td><td>Powdery Mildew ✔</td><td class="ok">95%</td></tr>
+          <tr><td>Powdery mildew — leaf (blight)</td><td>Powdery Mildew ✔</td><td class="ok">95%</td></tr>
+          <tr><td>Powdery mildew — leaf (curling)</td><td>Powdery Mildew ✔</td><td class="ok">92%</td></tr>
+          <tr><td>Anthracnose — leaf 1</td><td>Anthracnose ✔</td><td class="ok">95%</td></tr>
+          <tr><td>Anthracnose — leaf 2</td><td>Anthracnose ✔</td><td class="ok">95%</td></tr>
+          <tr><td>Fruit fly — fruit</td><td>Fruit Fly ✔</td><td class="ok">90%</td></tr>
+          <tr><td>Healthy leaf</td><td>Healthy ✔</td><td class="ok">95%</td></tr>
+          <tr><td>Healthy fruit</td><td>Healthy ✔</td><td class="ok">95%</td></tr>
         </table>
-        <div class="note">स्रोत: Wikimedia Commons फोटो, कॅप्शन-प्रमाणित ग्राउंड ट्रुथ · संपूर्ण पुरावा: repo मधील RESULTS.md · अजून ५ दुर्मिळ रोग मॉडेलच्या यादीत, चाचणी-योग्य फोटो नाहीत.</div>
+        <div class="note">Source: Wikimedia Commons photos, caption-verified ground truth · full evidence: RESULTS.md in the repo · 5 more rare diseases are in the model's list but had no testable photos.</div>
       </div>
     </div>
   </div>
 
   <div class="foot">
     <div class="quote">
-      "एक झाड, एक डॉक्टर — <span>आणि याची किंमत: शून्य रुपये.</span>"
-      <div class="fair">Dr. K. H. Gharda Memorial Innovation Fair · ३० सप्टेंबर २०२६ · GITM Campus<br>
+      "One tree, one doctor — <span>and the price: zero rupees.</span>"
+      <div class="fair">Dr. K. H. Gharda Memorial Innovation Fair · 30 September 2026 · GITM Campus<br>
       React Native (Expo) · Supabase (RLS) · Google Gemini · TypeScript</div>
     </div>
-    <div class="qrbox"><div id="qr"></div><div class="cap">डेमो उभा करा →</div></div>
+    <div class="qrbox"><div id="qr"></div><div class="cap">Try the live demo →</div></div>
   </div>
 </div>
 
 <script>
-// QR: point phones at the deployed expo web URL (edit before printing).
-// Keep the payload short; plain CORS-free canvas QR via Google chart fallback is offline-unfriendly,
-// so draw a QR with a tiny embedded generator (qrcode-generator, MIT).
+// QR: point phones at the deployed web app.
 (function () {
-  var url = 'https://abdallahdeshamukh-hash.github.io/hapus-doctor/'; // live demo web app
+  var url = 'https://abdallahdeshamukh-hash.github.io/hapus-doctor/';
   var script = document.createElement('script');
   script.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
   script.onload = function () {
