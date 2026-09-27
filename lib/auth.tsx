@@ -71,7 +71,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('Error fetching profile:', error.message);
       return;
     }
-    setProfile(data as Profile | null);
+    if (data) {
+      setProfile(data as Profile | null);
+      return;
+    }
+    // No profile yet (guest sign-in, or a race where the register-time insert
+    // failed): create one so the app never dead-ends after auth succeeds.
+    const isGuest = !!session?.user?.is_anonymous;
+    const fallbackName = isGuest
+      ? 'पाहुणे शेतकरी'
+      : (session?.user?.email?.split('@')[0] ?? 'शेतकरी');
+    const { data: created, error: insertError } = await supabase
+      .from('profiles')
+      .insert({ id: userId, name: fallbackName, role: 'farmer' })
+      .select()
+      .maybeSingle();
+    if (insertError) {
+      console.error('Profile auto-create failed:', insertError.message);
+      return;
+    }
+    setProfile(created as Profile | null);
   }
 
   async function refreshProfile() {

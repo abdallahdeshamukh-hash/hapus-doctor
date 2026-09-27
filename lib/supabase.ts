@@ -11,7 +11,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     storage: Platform.OS === 'web' ? undefined : AsyncStorage,
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: false,
+    // Consume OAuth/recovery tokens from the URL on web (password-reset links).
+    detectSessionInUrl: Platform.OS === 'web',
   },
 });
 

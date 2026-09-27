@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<title>हपुस डॉक्टर</title>
+<script>
+// GitHub Pages has no SPA fallback: any deep link (e.g. /profile) or a
+// refresh on a subroute lands here. Bounce into the app instead of 404.
+(function () {
+  var target = '/hapus-doctor/';
+  try {
+    var p = location.pathname.replace(/^\/hapus-doctor\//, '/');
+    if (p && p !== '/' && p !== '/index.html') {
+      sessionStorage.setItem('hapus.redirect', p + location.search + location.hash);
+    }
+  } catch (e) {}
+  location.replace(target);
+})();
+</script>
+</head>
+<body style="font-family:system-ui;background:#fffbeb;color:#1c1917;display:flex;align-items:center;justify-content:center;height:100vh;margin:0">
+<div style="text-align:center">
+  <div style="font-size:48px">🥭</div>
+  <p style="font-size:18px;font-weight:600">हपुस डॉक्टर उघडत आहे…</p>
+  <p><a href="/hapus-doctor/" style="color:#166534">उघडा →</a></p>
+</div>
+</body>
+</html>

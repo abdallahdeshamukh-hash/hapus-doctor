@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Platform } from 'react-native';
 import { useAuth } from '@/lib/auth';
 import { theme } from '@/lib/theme';
 import {
@@ -18,6 +18,13 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(false);
 
   async function handleSignOut() {
+    // Alert.alert has no UI on react-native-web — sign out directly there.
+    if (Platform.OS === 'web') {
+      setLoading(true);
+      await signOut();
+      setLoading(false);
+      return;
+    }
     Alert.alert('साइन आउट', 'तुम्हाला खात्री आहे का?', [
       { text: 'रद्द करा', style: 'cancel' },
       {
