@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase, Profile } from './supabase';
 import { seedSampleScansOnce } from './offline';
@@ -25,6 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const loadedUserRef = useRef<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -48,17 +49,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (session?.user) {
-      (async () => {
-        await fetchProfile(session.user.id);
-        // §4: on first login, seed clearly-marked sample scans (नमुना तपासणी)
-        // so the history tab is never empty on stage. Awaited so the very
-        // first home paint already shows the samples; runs at most once per
-        // user and never when real scans already exist.
-        await seedSampleScansOnce(session.user.id);
-        setLoading(false);
-      })();
-    }
+    const user = session?.user;
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      // Gate the UI until profile + §4 sample seeding finish, so the first
+      // home paint already shows the 3 नमुना तपासणी rows (also covers the
+      // fresh-signup-in-this-tab path where loading was already false).
+      if (loadedUserRef.current !== user.id) setLoading(true);
+      try {
+        await fetchProfile(user.id);
+        await seedSampleScansOnce(user.id);
+      } finally {
+        if (!cancelled) {
+          loadedUserRef.current = user.id;
+          setLoading(false);
+        }
+      }
+    })();
+    return () => { cancelled = true; };
   }, [session]);
 
   async function fetchProfile(userId: string) {
