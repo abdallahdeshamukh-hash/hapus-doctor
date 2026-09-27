@@ -95,6 +95,45 @@ export default function ResultScreen() {
 
   useEffect(() => { Speech.stop(); }, []);
 
+  // Rescan interval: rescan_after_days is not persisted, so estimate from
+  // severity (low→10, medium→8, high/critical→7) — consistent with the
+  // edge-function's 5–14 day guidance. Healthy scans need no reminder.
+  const rescanDays =
+    scan?.is_healthy
+      ? null
+      : scan?.severity === 'high' || scan?.severity === 'critical'
+        ? 7
+        : scan?.severity === 'medium'
+          ? 8
+          : 10;
+  const reminderDue = useMemo(() => {
+    if (!scan || !rescanDays) return null;
+    const d = new Date(new Date(scan.created_at).getTime() + rescanDays * 86_400_000);
+    return d;
+  }, [scan, rescanDays]);
+  const dueMr = reminderDue
+    ? reminderDue.toLocaleDateString('mr-IN', { day: 'numeric', month: 'long' })
+    : null;
+
+  useEffect(() => {
+    if (!scan) return;
+    (async () => {
+      const saved = await getScanReminder(scan.id);
+      setReminderSaved(!!saved);
+    })();
+  }, [scan]);
+
+  async function handleSaveReminder() {
+    if (!scan || !reminderDue) return;
+    await setScanReminder({
+      scanId: scan.id,
+      dueAt: reminderDue.toISOString(),
+      diseaseMr: scan.disease_name_mr,
+    });
+    setReminderSaved(true);
+  }
+
+
   if (loading) return <LoadingState message="निदान लोड होत आहे..." />;
   if (!scan) {
     return (
@@ -147,44 +186,6 @@ export default function ResultScreen() {
     } catch {
       return true; // can't check → attempt to speak anyway
     }
-  }
-
-  // Rescan interval: rescan_after_days is not persisted, so estimate from
-  // severity (low→10, medium→8, high/critical→7) — consistent with the
-  // edge-function's 5–14 day guidance. Healthy scans need no reminder.
-  const rescanDays =
-    scan?.is_healthy
-      ? null
-      : scan?.severity === 'high' || scan?.severity === 'critical'
-        ? 7
-        : scan?.severity === 'medium'
-          ? 8
-          : 10;
-  const reminderDue = useMemo(() => {
-    if (!scan || !rescanDays) return null;
-    const d = new Date(new Date(scan.created_at).getTime() + rescanDays * 86_400_000);
-    return d;
-  }, [scan, rescanDays]);
-  const dueMr = reminderDue
-    ? reminderDue.toLocaleDateString('mr-IN', { day: 'numeric', month: 'long' })
-    : null;
-
-  useEffect(() => {
-    if (!scan) return;
-    (async () => {
-      const saved = await getScanReminder(scan.id);
-      setReminderSaved(!!saved);
-    })();
-  }, [scan]);
-
-  async function handleSaveReminder() {
-    if (!scan || !reminderDue) return;
-    await setScanReminder({
-      scanId: scan.id,
-      dueAt: reminderDue.toISOString(),
-      diseaseMr: scan.disease_name_mr,
-    });
-    setReminderSaved(true);
   }
 
   function openCalendar() {
