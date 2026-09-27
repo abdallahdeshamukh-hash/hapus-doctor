@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>हपुस डॉक्टर — AI Status</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --leaf: #166534; --leaf-dark: #14532d; --leaf-light: #dcfce7;
+    --gold: #d97706; --gold-light: #fef3c7;
+    --cream: #fffbeb; --ink: #1c1917; --muted: #57534e; --red: #b91c1c; --line: #e7e5e4;
+  }
+  body { font-family: 'Noto Sans Devanagari', 'Mangal', 'Segoe UI', system-ui, sans-serif; background: linear-gradient(160deg, var(--cream), #fef7ed); min-height: 100vh; color: var(--ink); padding: 24px 16px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  h1 { font-size: 22px; font-weight: 800; color: var(--leaf-dark); }
+  .sub { font-size: 12.5px; color: var(--muted); margin-bottom: 18px; }
+  .banner { border-radius: 12px; padding: 12px 16px; font-weight: 700; font-size: 15px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; border: 1.5px solid transparent; }
+  .banner.ok { background: var(--leaf-light); color: var(--leaf-dark); border-color: #86efac; }
+  .banner.warn { background: var(--gold-light); color: #78350f; border-color: #fcd34d; }
+  .banner.down { background: #fee2e2; color: var(--red); border-color: #fca5a5; }
+  .banner small { font-weight: 400; font-size: 11.5px; margin-left: auto; }
+  .card { background: #fff; border: 1.5px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+  .card h2 { font-size: 14px; color: var(--leaf-dark); display: flex; align-items: center; gap: 8px; }
+  .card .row { display: flex; justify-content: space-between; font-size: 12.5px; padding: 6px 0; border-top: 1px dashed var(--line); }
+  .card .row:first-of-type { border-top: none; }
+  .card .k { color: var(--muted); }
+  .card .v { font-weight: 600; text-align: right; }
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .pill.ok { background: var(--leaf-light); color: var(--leaf-dark); }
+  .pill.warn { background: var(--gold-light); color: #78350f; }
+  .pill.down { background: #fee2e2; color: var(--red); }
+  .pill.wait { background: #e7e5e4; color: var(--muted); }
+  button { width: 100%; padding: 13px; border: none; border-radius: 12px; background: var(--leaf); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 6px; }
+  button:disabled { opacity: .55; cursor: wait; }
+  button.sec { background: #fff; color: var(--leaf-dark); border: 1.5px solid var(--leaf); }
+  .foot { text-align: center; font-size: 11px; color: var(--muted); margin-top: 14px; }
+  .foot a { color: var(--leaf); font-weight: 600; text-decoration: none; }
+  .log { margin-top: 10px; font-size: 11px; color: var(--muted); background: #fafaf9; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; max-height: 130px; overflow-y: auto; display: none; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span style="font-size:26px">🥭</span>
+    <h1>AI Status — हपुस डॉक्टर</h1>
+  </header>
+  <div class="sub">डेमो-पूर्व तपासणी · edge function v-live · <span id="clock">—</span></div>
+
+  <div id="banner" class="banner wait">⏳ तपासणी सुरू… <small id="bannerMeta"></small></div>
+
+  <div class="card">
+    <h2><span id="dotFn" class="pill wait">…</span> Edge function (hapus-ai)</h2>
+    <div class="row"><span class="k">HTTPS जुळणी</span><span class="v" id="fnReach">—</span></div>
+    <div class="row"><span class="k">अंतिम प्रोब</span><span class="v" id="fnProbe">—</span></div>
+    <div class="row"><span class="k">मॉडेल / की</span><span class="v" id="fnModel">—</span></div>
+    <div class="row"><span class="k">प्रतिसाद वेळ</span><span class="v" id="fnLatency">—</span></div>
+  </div>
+
+  <div class="card">
+    <h2><span id="dotDb" class="pill wait">…</span> Supabase (scans REST)</h2>
+    <div class="row"><span class="k">REST पोहोच</span><span class="v" id="dbReach">—</span></div>
+    <div class="row"><span class="k">Auth पोहोच</span><span class="v" id="dbAuth">—</span></div>
+  </div>
+
+  <div class="card">
+    <h2>निदान तपासणी (पर्यायी)</h2>
+    <div class="row"><span class="k">काय करते</span><span class="v">एक लहान नमुना फोटो AI कडे</span></div>
+    <div class="row"><span class="k">खर्च</span><span class="v">मोफत tier वर १ कॉल</span></div>
+    <button class="sec" id="probeBtn">🧪 लाइव्ह AI निदान चाचणी चालवा</button>
+    <div class="log" id="probeLog"></div>
+  </div>
+
+  <button id="refreshBtn">🔄 पुन्हा तपासा</button>
+  <div class="foot"><a href="./" id="appLink">← app उघडा</a> · शेवटचे यशस्वी निदान ऑफलाइनही result पानावर उघडते</div>
+</div>
+
+<script>
+(function () {
+  var CFG = {
+    url: 'https://otlbxwxqndsazhafnyts.supabase.co',
+    key: 'sb_publishable_jLTJvClTx0XNGNxoLZj17w_7lpZlwlw',
+    fn: 'hapus-ai'
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var state = { fn: 'wait', db: 'wait' };
+
+  function setPill(el, cls, text) { el.className = 'pill ' + cls; el.textContent = text; }
+  function set(text, cls, meta) {
+    $('banner').className = 'banner ' + cls;
+    $('banner').firstChild.textContent = text + ' ';
+    $('bannerMeta').textContent = meta || '';
+  }
+  function refreshBanner() {
+    if (state.fn === 'ok' && state.db === 'ok') set('✅ सर्व तपासण्या जमा — डेमोसाठी तयार!', 'ok', new Date().toLocaleTimeString());
+    else if (state.fn === 'down') set('❌ AI किनारा (edge function) नापोहोच — रिट्राय करा / हॉटस्पॉट लावा', 'down', new Date().toLocaleTimeString());
+    else if (state.fn === 'quota') set('⚠️ AI कोटा संपला — पुढील की/मॉडेल शोधण्यात आले नाहीत', 'down', new Date().toLocaleTimeString());
+    else if (state.fn === 'ok') set('⚠️ AI चालू, Supabase अडचणीत', 'warn', new Date().toLocaleTimeString());
+    else if (state.db === 'down') set('⚠️ Supabase नापोहोच — AI चाचणी शक्य नाही', 'warn', new Date().toLocaleTimeString());
+    else set('⏳ तपासणी सुरू…', 'wait');
+  }
+
+  function tick() { $('clock').textContent = new Date().toLocaleTimeString(); }
+
+  // The tiny probe image is fetched from this page's own origin (no CORS issues):
+  // a real leaf photo at /probe-leaf.jpg is ideal; favicon.png works as a last resort.
+  function loadProbeImage() {
+    var candidates = [
+      { url: './probe-leaf.jpg', mime: 'image/jpeg' },
+      { url: './probe-leaf.png', mime: 'image/png' },
+      { url: './favicon.png', mime: 'image/png' }
+    ];
+    return candidates.reduce(function (p, c) {
+      return p.then(function (prev) {
+        if (prev) return prev;
+        return fetch(c.url).then(function (r) {
+          if (!r.ok) throw new Error('missing');
+          return r.blob();
+        }).then(function (blob) {
+          return new Promise(function (res) {
+            var fr = new FileReader();
+            fr.onload = function () { res({ b64: String(fr.result).split(',')[1], mime: c.mime }); };
+            fr.readAsDataURL(blob);
+          });
+        });
+      }).catch(function () { return null; });
+    }, Promise.resolve(null));
+  }
+
+  function checkFunction() {
+    setPill($('dotFn'), 'wait', '…');
+    var t0 = Date.now();
+    return fetch(CFG.url + '/functions/v1/' + CFG.fn + '/health', {
+      headers: { Authorization: 'Bearer ' + CFG.key, apikey: CFG.key }
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        var ms = Date.now() - t0;
+        $('fnReach').textContent = 'HTTP ' + r.status + ' ✓';
+        $('fnLatency').textContent = ms + ' ms';
+        var model = (j && (j.model || (j.models && j.models.join ? j.models.join(' → ') : null))) || '—';
+        var keys = j && j.keys_count;
+        $('fnModel').textContent = model + (keys ? ' · ' + keys + ' की' : '');
+        if (r.ok && j && j.gemini_ok) {
+          state.fn = 'ok';
+          $('fnProbe').textContent = '✓ ' + (j.probe_model || model);
+          setPill($('dotFn'), 'ok', 'OK');
+        } else if (r.ok && j && j.gemini_ok === false && (j.status === 'quota' || j.quota_exhausted)) {
+          state.fn = 'quota';
+          $('fnProbe').textContent = '✗ सर्व की/मॉडेल थकले';
+          setPill($('dotFn'), 'down', 'कोटा');
+        } else if (r.ok) {
+          state.fn = 'quota';
+          $('fnProbe').textContent = '⚠ प्रोब अस्पष्ट';
+          setPill($('dotFn'), 'warn', 'अस्पष्ट');
+        } else {
+          state.fn = 'down';
+          $('fnProbe').textContent = '✗ HTTP ' + r.status;
+          setPill($('dotFn'), 'down', 'FAIL');
+        }
+      });
+    }).catch(function () {
+      state.fn = 'down';
+      $('fnReach').textContent = '✗ नापोहोच';
+      $('fnProbe').textContent = '—';
+      $('fnLatency').textContent = '—';
+      $('fnModel').textContent = '—';
+      setPill($('dotFn'), 'down', 'FAIL');
+    });
+  }
+
+  function checkDb() {
+    setPill($('dotDb'), 'wait', '…');
+    return fetch(CFG.url + '/rest/v1/scans?select=id&limit=1', {
+      headers: { Authorization: 'Bearer ' + CFG.key, apikey: CFG.key }
+    }).then(function (r) {
+      if (r.ok) {
+        state.db = 'ok';
+        $('dbReach').textContent = 'HTTP 200 ✓';
+        setPill($('dotDb'), 'ok', 'OK');
+      } else {
+        state.db = 'down';
+        $('dbReach').textContent = 'HTTP ' + r.status;
+        setPill($('dotDb'), 'down', 'FAIL');
+      }
+      return r.text();
+    }).then(function () {
+      return fetch(CFG.url + '/auth/v1/health', { headers: { apikey: CFG.key } });
+    }).then(function (r) {
+      $('dbAuth').textContent = r.ok ? 'HTTP 200 ✓' : 'HTTP ' + r.status;
+    }).catch(function () {
+      state.db = 'down';
+      $('dbReach').textContent = '✗ नापोहोच';
+      $('dbAuth').textContent = '—';
+      setPill($('dotDb'), 'down', 'FAIL');
+    });
+  }
+
+  function runAll() {
+    ['refreshBtn'].forEach(function (i) { $(i).disabled = true; });
+    set('⏳ तपासणी सुरू…', 'wait');
+    checkFunction().then(refreshBanner);
+    checkDb().then(refreshBanner).then(function () {
+      $('refreshBtn').disabled = false;
+    });
+  }
+
+  $('refreshBtn').addEventListener('click', runAll);
+
+  $('probeBtn').addEventListener('click', function () {
+    var btn = $('probeBtn');
+    btn.disabled = true;
+    var log = $('probeLog');
+    log.style.display = 'block';
+    log.textContent = 'फोटो तयार करत आहे…\n';
+    loadProbeImage().then(function (probe) {
+      if (!probe) { log.textContent += 'प्रोब फोटो सापडला नाही — पानाचा फोटो public/probe-leaf.jpg म्हणून ठेवा.\n'; return; }
+      log.textContent += 'AI कडे पाठवत आहे (हे काही सेकंद लागू शकते)…\n';
+      return fetch(CFG.url + '/functions/v1/' + CFG.fn, {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + CFG.key, apikey: CFG.key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'diagnose', image_base64: probe.b64, mime_type: probe.mime })
+      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); }).then(function (res) {
+        if (res.ok && !res.j.error) {
+          log.textContent += '✅ निदान: ' + (res.j.disease_name_mr || (res.j.is_healthy ? 'निरोगी' : '?')) +
+            ' · खात्री ' + res.j.confidence + '% · severity ' + res.j.severity + '\n';
+        } else {
+          log.textContent += '❌ अपयश: ' + (res.j.error || JSON.stringify(res.j).slice(0, 200)) + '\n';
+        }
+      });
+    }).catch(function (e) { log.textContent += '❌ ' + e + '\n'; }).then(function () { btn.disabled = false; });
+  });
+
+  // Fetch function version for the subtitle
+  fetch(CFG.url + '/functions/v1/' + CFG.fn + '/health', {
+    headers: { Authorization: 'Bearer ' + CFG.key, apikey: CFG.key }
+  }).then(function (r) { return r.ok ? r.json() : {}; })
+    .then(function (j) { if (j && j.version) $('fnReach').textContent = 'HTTP 200 ✓ · v' + j.version; })
+    .catch(function () {});
+
+  tick(); setInterval(tick, 1000);
+  runAll();
+})();
+</script>
+</body>
+</html>
