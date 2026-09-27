@@ -46,7 +46,7 @@
     <span style="font-size:26px">🥭</span>
     <h1>AI Status — हपुस डॉक्टर</h1>
   </header>
-  <div class="sub">डेमो-पूर्व तपासणी · edge function v-live · <span id="clock">—</span></div>
+  <div class="sub">डेमो-पूर्व तपासणी · <span id="clock">—</span></div>
 
   <div id="banner" class="banner wait">⏳ तपासणी सुरू… <small id="bannerMeta"></small></div>
 
@@ -150,8 +150,12 @@
           state.fn = 'quota';
           $('fnProbe').textContent = '✗ सर्व की/मॉडेल थकले';
           setPill($('dotFn'), 'down', 'कोटा');
+        } else if (r.ok && j && j.gemini_ok === false && j.status === 'probe_error') {
+          state.fn = 'down';
+          $('fnProbe').textContent = '✗ प्रोब अपयशी (AI उत्तर नाही)';
+          setPill($('dotFn'), 'down', 'FAIL');
         } else if (r.ok) {
-          state.fn = 'quota';
+          state.fn = 'down';
           $('fnProbe').textContent = '⚠ प्रोब अस्पष्ट';
           setPill($('dotFn'), 'warn', 'अस्पष्ट');
         } else {
@@ -236,7 +240,7 @@
   fetch(CFG.url + '/functions/v1/' + CFG.fn + '/health', {
     headers: { Authorization: 'Bearer ' + CFG.key, apikey: CFG.key }
   }).then(function (r) { return r.ok ? r.json() : {}; })
-    .then(function (j) { if (j && j.version) $('fnReach').textContent = 'HTTP 200 ✓ · v' + j.version; })
+    .then(function (j) { if (j && j.version) $('fnReach').textContent = 'HTTP 200 ✓ · ' + j.version; })
     .catch(function () {});
 
   tick(); setInterval(tick, 1000);

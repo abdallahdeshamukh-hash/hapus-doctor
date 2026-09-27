@@ -19,11 +19,18 @@
 import { serve } from 'https://deno.land/std@0.208.0/http/server.ts';
 
 // Supports comma-separated keys: GEMINI_API_KEY="key1,key2" — failover on quota.
+// ALSO supports a model-fallback chain: flash-lite first (separate quota bucket),
+// then the broader flash tier — when every key's daily quota for one model is
+// exhausted (429), the function automatically walks down the chain.
 const GEMINI_KEYS = (Deno.env.get('GEMINI_API_KEY') ?? '')
   .split(',')
   .map((k) => k.trim())
   .filter(Boolean);
-const GEMINI_MODEL = 'gemini-flash-lite-latest'; // alias; separate daily quota bucket (flash tier exhausted 2026-09-26)
+const GEMINI_MODELS = [
+  'gemini-flash-lite-latest', // primary: fast, separate daily quota bucket
+  'gemini-2.0-flash',         // fallback 1: broad flash tier
+  'gemini-flash-latest',      // fallback 2: newest flash alias
+];
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -47,6 +54,13 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
 
   try {
+    // GET .../health — AI status probe for the pre-fair dashboard (public/ai-status.html)
+    if (req.method === 'GET') {
+      const url = new URL(req.url);
+      if (url.pathname.replace(/\/+$/, '').endsWith('/health')) return await handleHealth(req);
+      return json({ error: 'Not found. GET .../health for status; POST { mode } to diagnose/transcribe.' }, 404);
+    }
+
     if (!GEMINI_KEYS.length) {
       return json({ error: 'GEMINI_API_KEY not configured in edge function secrets' }, 500);
     }
@@ -120,7 +134,7 @@ RULES:
 - confidence = honest visual certainty; unclear photo → confidence < 40 with closest match.
 - Photo not a recognizable mango plant part → is_healthy=true, confidence <= 25, description_mr says the photo isn't a clear mango problem and asks for a closer photo.`;
 
-  const text = await callGeminiVision(prompt, body.image_base64, body.mime_type || 'image/jpeg');
+  const { text, model } = await callGeminiVision(prompt, body.image_base64, body.mime_type || 'image/jpeg');
   if (!text) return json({ error: 'AI unavailable', diag: (globalThis as any).__geminiErr || 'fetch failed' }, 502);
 
   const parsed = safeParse(text);
@@ -128,6 +142,7 @@ RULES:
 
   // Sanitize — never trust the model blindly
   const d = parsed;
+  d._model = model; // which model in the fallback chain actually answered
   d.is_healthy = Boolean(d.is_healthy);
 
   const sev = String(d.severity || 'medium').toLowerCase();
@@ -172,7 +187,7 @@ async function handleTranscribe(body: AIRequest) {
 
   const prompt = `Transcribe this audio exactly as spoken. It may be in Marathi, Hindi, English, or a mix (a farmer describing mango tree symptoms). Output ONLY the transcript text, nothing else. If the audio is silent or unclear, output exactly: {"text": ""}`;
 
-  const res = await geminiFetch({
+  const hit = await geminiFetch({
     contents: [
       {
         parts: [
@@ -186,12 +201,12 @@ async function handleTranscribe(body: AIRequest) {
     },
   });
 
-  if (!res || !res.ok) {
-    console.error('Gemini transcribe error:', res ? await res.text() : 'fetch failed');
+  if (!hit || !hit.res.ok) {
+    console.error('Gemini transcribe error:', hit ? await hit.res.text() : 'fetch failed');
     return json({ error: 'AI unavailable' }, 502);
   }
 
-  const data = await res.json();
+  const data = await hit.res.json();
   const raw = (data?.candidates?.[0]?.content?.parts ?? [])
     .map((p: any) => (typeof p?.text === 'string' ? p.text : ''))
     .join('');
@@ -206,43 +221,47 @@ async function handleTranscribe(body: AIRequest) {
 }
 
 // ------------------------------------------------------------------
-// Gemini helpers (same proven machinery as ai-triage)
+// Gemini helpers — key × model fallback chain
 // ------------------------------------------------------------------
 // Free tier is rate-limited (503 high-demand + per-key daily quota).
-// Strategy: per-key retry with backoff; on 429 move to the next key.
-async function geminiFetch(payload: unknown): Promise<Response | null> {
-  const delays = [800, 2500, 5000]; // per-key patience, demo-friendly
-  let lastRes: Response | null = null;
+// Strategy: for every (model, key) pair — retry with backoff on 503;
+// on 429 (daily quota exhausted) stop wasting attempts on that pair and
+// move on. Primary model first across all keys, then the fallback models.
+async function geminiFetch(payload: unknown): Promise<{ res: Response; model: string } | null> {
+  const delays = [800, 2500, 5000]; // per-pair patience, demo-friendly
+  let last: { res: Response; model: string } | null = null;
 
-  for (let k = 0; k < GEMINI_KEYS.length; k++) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEYS[k]}`;
-    for (let attempt = 0; attempt <= delays.length; attempt++) {
-      try {
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        if (res.ok) return res;
-        lastRes = res;
-        if (res.status === 429) {
-          console.error(`Gemini key #${k + 1} quota exceeded, trying next key`);
-          break; // move to next key immediately
+  for (const model of GEMINI_MODELS) {
+    for (let k = 0; k < GEMINI_KEYS.length; k++) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_KEYS[k]}`;
+      for (let attempt = 0; attempt <= delays.length; attempt++) {
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          if (res.ok) return { res, model };
+          last = { res, model };
+          if (res.status === 429) {
+            console.error(`Gemini ${model} key #${k + 1} daily quota exceeded, moving on`);
+            break; // next key (then next model)
+          }
+          if (res.status !== 503) return last; // other error — surface it
+          if (attempt < delays.length) await new Promise((r) => setTimeout(r, delays[attempt]));
+        } catch (err) {
+          console.error('Gemini fetch threw:', err);
+          if (attempt >= delays.length) break;
+          await new Promise((r) => setTimeout(r, delays[attempt]));
         }
-        if (res.status !== 503) return res; // other error — surface it
-        if (attempt < delays.length) await new Promise((r) => setTimeout(r, delays[attempt]));
-      } catch (err) {
-        console.error('Gemini fetch threw:', err);
-        if (attempt >= delays.length) break;
-        await new Promise((r) => setTimeout(r, delays[attempt]));
       }
     }
   }
-  return lastRes; // all keys exhausted — return last error response
+  return last; // everything exhausted — return last error response
 }
 
-async function callGeminiVision(prompt: string, base64: string, mime: string): Promise<string | null> {
-  const res = await geminiFetch({
+async function callGeminiVision(prompt: string, base64: string, mime: string): Promise<{ text: string | null; model: string | null }> {
+  const hit = await geminiFetch({
     contents: [
       {
         parts: [{ text: prompt }, { inline_data: { mime_type: mime, data: base64 } }],
@@ -254,19 +273,87 @@ async function callGeminiVision(prompt: string, base64: string, mime: string): P
       responseMimeType: 'application/json', // JSON mode — no prose/fences to strip, faster emit
     },
   });
-  if (!res || !res.ok) {
-    (globalThis as any).__geminiErr = res ? `${res.status} ${(await res.text()).slice(0, 300)}` : 'fetch failed';
+  if (!hit || !hit.res.ok) {
+    (globalThis as any).__geminiErr = hit ? `${hit.res.status} ${(await hit.res.text()).slice(0, 300)}` : 'fetch failed';
     console.error('Gemini vision error:', (globalThis as any).__geminiErr);
-    return null;
+    return { text: null, model: hit?.model ?? null };
   }
-  const data = await res.json();
+  const data = await hit.res.json();
   const cand = data?.candidates?.[0];
   // Join ALL parts — thinking/text can be split across several
   const joined = (cand?.content?.parts ?? [])
     .map((p: any) => (typeof p?.text === 'string' ? p.text : ''))
     .join('');
   (globalThis as any).__geminiFinish = cand?.finishReason ?? 'unknown';
-  return joined || null;
+  return { text: joined || null, model: hit.model };
+}
+
+// ------------------------------------------------------------------
+// HEALTH — GET .../health: is the AI actually reachable right now?
+// Fires one tiny live probe through the normal fallback chain and
+// reports which model answered. Powers public/ai-status.html.
+// ------------------------------------------------------------------
+// Rolling per-IP health-probe timestamps (see handleHealth).
+const healthHits = new Map<string, number[]>();
+
+async function handleHealth(req: Request) {
+  // Simple in-memory per-IP rate limit: max 10 probes / 10 min / IP,
+  // so the public health endpoint can't be used to drain Gemini quota.
+  const ip =
+    req?.headers?.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    'unknown';
+  const now = Date.now();
+  const WINDOW = 10 * 60 * 1000, LIMIT = 10;
+  healthHits.set(ip, (healthHits.get(ip) ?? []).filter((t) => now - t < WINDOW));
+  const hits = healthHits.get(ip) ?? [];
+  if (hits.length >= LIMIT) {
+    return json({ ok: false, status: 'rate_limited', gemini_ok: false, retry_after_min: 10 }, 429);
+  }
+  hits.push(now);
+  healthHits.set(ip, hits);
+
+  if (!GEMINI_KEYS.length) {
+    return json({ ok: false, status: 'no_keys', gemini_ok: false, keys_count: 0, models: GEMINI_MODELS });
+  }
+  // 8x8 red pixel JPEG — tiny but a real image so vision mode runs.
+  const tinyJpeg =
+    '/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCABAADADASIAAhEBAxEB/8QAGwAAAgMBAQEAAAAAAAAAAAAABQYDBAcCAQj/xAAwEAABAwIFAgUBCQEAAAAAAAABAgMEBREABhIhMRNBFBUiUWEHIyUyQnFygZGhYv/EABoBAAIDAQEAAAAAAAAAAAAAAAIDAAEEBQb/xAAqEQACAQMDAQYHAAAAAAAAAAABAgADESESEzFRIkFxobHwBDJCgZHh8f/aAAwDAQACEQMRAD8AzPLuZavlGLDlSpBKX5PWbZcuHACAouhXPcbG97nFWrQW5mckOtLjLjTpQkNLYT1m9KlE7J523Gk77WwrQJMeWl1M5DryGkXQsOHWFEWSAkmxF7XsL/oMNH0rcaj5nZMpodMWKnlcRiFABz43Nv5xzmTbDOOfWVYDM7kZYqOX6oF0997w0pSmoUtuyVO6hwBc97g+1saRQ6TNpMqSzmtqFNdcZSqLJUyCHWxa6Dax1gepIt6t+e0OeHp+U5T0itPmoR1gCIpbSUbEkrSgp4JN1KIt+JJ+MMUrw2dKLRncqR2kMlzxDr0tN1NFtBCUqF7k6je/Bte+EVNbAEjPWa1Vfp+YQv4eLR5TkCNHBEhrUNSNCUmw9JPIJFtvjHVUjTvKUOU9tJlRUFbV0bmw3A+CBb+sOCIsbyunrqy0CWplDa0A3SXiOx/W4x09Q1sRG5LLxdUnUXBe/pPbHFq0tSErmxPv8QSBUS/eJ8OSGPJ8wOJiS0vKhujpvoSQCoWJ2+DcfxjR8nQagzTnc0NVCLHZfcc8Ul9rqNLZJ9Wpsci5O1xbFukU6FJgQKXGpkCp1xhtSH5SNQYZZJsAs7C9vze52ucNeUKG3SPuun1BNWgudbxEJ6JoZSTYEIfJusgkA+ncEbDHoq1S4sOYK0WORJ5EydXssrp5VRZ02Cwpxg6tTWnspC17WI4TuSLg2th3p86kUnKTGYn2kx1eE6CW+l0kslRF9KCfTcWv3tawwmIf80hNw4A1reZWhhou9NLNhdKOOTfVvuAL4rZzmVKKxR6DFjMz5BkKdkF9AUl5BHpTqWDvsfVbm3vbGdaubHmODWzeF69nWn5ly7Mg05599xkpcckD7NwKG6S2g7ncDkjbYYfspZgXJp0GU5ZLchlK1Am+9t/9vjOJSYTUaIgU9UV2LZmQ7FjK1MrPCFosNxflJ0ke3GL9OqctqmsNlTinkoJA6Vgu5Pqtzb4wrYVOSf3DCBO11kVQbmTKIUsSVnptJD4ZOsJTxc8Ep/3tjPajKqVFqbMSmuVKE04+nxDESxQ+okgOIGo+lRJTpBtYYqQn6/Vq61Epr6oai70ZDmkaUA2OpRPAtf2vb3xqOXofk8Wo1yc3JkMQGSYYdIK5TiSQVqSB6VE7J3Ngb24xpp9lrXFrSGruE9BA0Vh+NUKS1McjMPmSguRgkuOtK0KsTpOxKb7GwF++ww4SokVySl9sIEtGtlKw4FDSo7bcX7YA5ZmefVWJXIKJEdUsPuu09zSpCnANKilX7iLgjm2w5wYqlW8MhtiPEek6bIQhDY1OrtcpSL77344xmAVEa+cn+RdNgtJj1Ms1qPGacpc6VLUSJDTJWGwtQcF7bg2AHAPsefYZVZst7MbLciIhME2LMkL5SQDYpHsSe+4N8Ds0xujTHrOS6VJmNNy34TTRJbQldlO7bJI2vbbbcb3w4eV0V6jxIq5ZiSW2k6VJAU2TyFAj8p9x7m2D3EZA9r38owfEalBI8ZkU3ND2ZhHjR4MJ5TUwF2qxoy22FovcFaOQrm1uOTzi39T6jMraFwMu9VVPhgGVGYBUWRYaNah+IHt84TvpbWptFr0Zp9lw06YuyGVjSnWOCL/0ffbDblma+z9V63FgpcRBqri23iklBaRa/Uv2Kd/7wbKtN9Q4APv7RNKxpEnvx4T3J1RRMVTTRS65U4X2AUtBCV6gpIQBfdRSkqJ/5F/g7Xo0rMmT0zlQ5EadIbDzTJ2cbdQTcDg6SQoj92BmUBDk5yS/BiiBQKS6WYKVpUPEOBPTU4pXClAX/leJzMmUn6iQpVUcjusyGhT1uR3idLgtoWtHKFFNrgbHsebUCtwDjv8AWSkwKhT18uIMyNmqoTnEO1Ftc9qmNrQ8QSXiw6Cladz6h3tsRYEX4xplKp6KtSoU1icJRea6bJKAhCQi4A/3nvhWrUXLuT61D8NTnI/iVKbfdQpSk2ve9jfVpPfba3OGPLlIkwJlQqEOdHlUiQrqNMsuamkJO5Cb7kk37bbe2MtZtgtowRY8SWNLUq84n//Z';
+  const t0 = Date.now();
+  try {
+    const { text, model } = await callGeminiVision(
+      'Reply with exactly this JSON: {"is_healthy":true,"confidence":1,"stage":"leaf","severity":"low","treatment":[],"prevention_mr":[],"description_mr":"प्रोब","disease_name_mr":"","disease_name_en":"","rescan_after_days":7}',
+      tinyJpeg,
+      'image/jpeg'
+    );
+    const latency = Date.now() - t0;
+    if (text) {
+      return json({
+        ok: true,
+        status: 'ok',
+        gemini_ok: true,
+        probe_model: model,
+        model: model,
+        models: GEMINI_MODELS,
+        keys_count: GEMINI_KEYS.length,
+        probe_latency_ms: latency,
+        version: 'v15',
+      });
+    }
+    const diagRaw = String((globalThis as any).__geminiErr || 'probe failed');
+    const isQuota = diagRaw.includes('429') || diagRaw.includes('RESOURCE_EXHAUSTED');
+    return json({
+      ok: true,
+      status: isQuota ? 'quota' : 'probe_error',
+      gemini_ok: false,
+      quota_exhausted: isQuota,
+      diag: diagRaw.slice(0, 200),
+      models: GEMINI_MODELS,
+      keys_count: GEMINI_KEYS.length,
+      version: 'v15',
+    });
+  } catch (err) {
+    return json({ ok: false, status: 'error', gemini_ok: false, diag: String(err).slice(0, 200), models: GEMINI_MODELS, version: 'v15' });
+  }
 }
 
 function safeParse(text: string): any | null {
