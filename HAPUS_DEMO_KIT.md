@@ -18,6 +18,8 @@ Everything you need for the **Dr. K. H. Gharda Memorial Innovation Fair (Sept 30
 - [x] Scan progress UX: rotating Marathi tips + elapsed seconds during the AI call
 - [x] Offline resilience: last diagnosis cached on-device, result reopens from cache with an "ऑफलाइन" banner if the network dies (tested under real network failure)
 - [x] History seeding: new accounts get 3 sample scans marked **"नमुना तपासणी"** (amber dashed cards) — history is never empty on stage
+- [x] **AI quota guard (v15)**: edge function tries 3 models × 2 keys automatically (flash-lite → 2.0-flash → flash-latest), so one exhausted daily quota no longer kills the demo
+- [x] **AI status dashboard**: open **`/ai-status.html`** on the deployed site every demo morning — one green banner confirms edge function, live Gemini probe, and Supabase are all up
 - [x] Print-ready **poster + handout**: open `demo-kit/poster.html` and `demo-kit/handout.html` in a browser → Ctrl+P → A4/A3
 
 ### ⚠️ TODO (you, ~20 min, by Sept 28)
@@ -25,6 +27,8 @@ Everything you need for the **Dr. K. H. Gharda Memorial Innovation Fair (Sept 30
 2. **Verify the 4 live-demo photos are on the demo phone** (also in `demo-photos/`): `01-powdery-mildew-flowers.jpg` (flower), `02-powdery-mildew-leaf-blight.jpg` (leaf), `06-fruit-fly.jpg` (fruit, diseased), `08-healthy-fruit-alphonso.jpg` (fruit, healthy) — all 4 already verified correct by the AI.
 3. **Record the backup video** (Section 6) on the demo phone.
 4. **Rehearse the demo script below once, timed** — the AI call is 5–15s; rehearse what you say during it.
+
+**Live web app (scan this, no install needed):** https://abdallahdeshamukh-hash.github.io/hapus-doctor/ · **AI health check:** [/ai-status.html](https://abdallahdeshamukh-hash.github.io/hapus-doctor/ai-status.html)
 
 ### Run the app (2 min)
 ```bash
@@ -118,7 +122,7 @@ Both carry the headline number judges remember: **8/8 verified diagnoses, median
 - **Backup photos:** the 4 verified disease photos (Section 1) — if the live leaf photo fails, gallery-pick one.
 - **Offline fallback (built in):** venue Wi-Fi dead → the last diagnosis still opens from the phone cache with the "ऑफलाइन" banner; phone hotspot restores the live AI. History stays populated with the marked sample scans either way.
 - **Voice fallback:** if the hall is noisy, type the Marathi sentence in the notes field.
-- **AI down fallback:** 2-key failover + retries are built in; retry usually works. If Gemini is throttled campus-wide, demo the मार्गदर्शन tab, the history flow, and the cached-offline result — and say honestly: "AI service is throttled right now; here's the verified 8/8 evidence instead."
+- **AI down fallback:** v15 walks a 3-model × 2-key fallback chain automatically; check `/ai-status.html` to see exactly what's exhausted. If everything is throttled, demo the मार्गदर्शन tab, the history flow, and the cached-offline result — and say honestly: "AI service is throttled right now; here's the verified 8/8 evidence instead."
 - **Charge everything.** Power bank + laptop charger. Kill auto-lock on the demo phone (Settings → Display → 30 min).
 
 ## 7. Talking point only you will have
