@@ -32,7 +32,7 @@ export default function DiseaseDetailScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.navBar}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.navButton}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.navButton} accessibilityLabel="मागे जा" accessibilityRole="button">
           <ChevronLeft size={24} color={theme.colors.textPrimary} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={styles.navTitle} numberOfLines={1}>

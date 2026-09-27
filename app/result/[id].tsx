@@ -160,6 +160,8 @@ export default function ResultScreen() {
             router.back();
           }}
           style={styles.navButton}
+          accessibilityLabel="मागे जा"
+          accessibilityRole="button"
         >
           <ChevronLeft size={24} color={theme.colors.textPrimary} strokeWidth={2} />
         </TouchableOpacity>

@@ -52,9 +52,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       (async () => {
         await fetchProfile(session.user.id);
         // §4: on first login, seed clearly-marked sample scans (नमुना तपासणी)
-        // so the history tab is never empty on stage. Fire-and-forget; runs
-        // at most once per user and never when real scans already exist.
-        void seedSampleScansOnce(session.user.id);
+        // so the history tab is never empty on stage. Awaited so the very
+        // first home paint already shows the samples; runs at most once per
+        // user and never when real scans already exist.
+        await seedSampleScansOnce(session.user.id);
         setLoading(false);
       })();
     }
