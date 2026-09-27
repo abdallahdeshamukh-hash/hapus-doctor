@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { router, useLocalSearchParams, useFocusEffect } from 'expo-router';
+import { Linking, Platform } from 'react-native';
 import * as Speech from 'expo-speech';
 import { supabase, Scan, SEVERITY_CONFIG, STAGE_CONFIG, TreatmentOption } from '@/lib/supabase';
 import { theme } from '@/lib/theme';
@@ -18,6 +19,7 @@ import {
   ChevronLeft,
   Sparkles,
   Volume2,
+  Share2,
   Square,
   CheckCircle,
   AlertTriangle,
@@ -142,6 +144,47 @@ export default function ResultScreen() {
     } catch {
       return true; // can't check → attempt to speak anyway
     }
+  }
+
+  // WhatsApp-ready plain text: diagnosis + both treatments + prevention.
+  function buildShareText(s: Scan): string {
+    const lines: string[] = [];
+    lines.push('🥭 हपुस डॉक्टर — निदान');
+    lines.push(s.is_healthy
+      ? 'निदान: झाड निरोगी आहे ✅'
+      : `निदान: ${s.disease_name_mr ?? 'रोग'} (${s.disease_name_en ?? ''}) — खात्री ${s.confidence ?? '-'}%`);
+    if (!s.is_healthy && s.description_mr) lines.push(s.description_mr);
+    (s.treatment ?? []).forEach((t, i) => {
+      lines.push('');
+      lines.push(`${i + 1}) ${t.type === 'chemical' ? 'रासायनिक' : 'सेंद्रिय'} उपाय`);
+      lines.push(`औषध: ${t.medicine}`);
+      lines.push(`प्रमाण: ${t.dosage}`);
+      lines.push(`वेळापत्रक: ${t.frequency}`);
+      if (t.notes) lines.push(`सूचना: ${t.notes}`);
+    });
+    if (s.prevention_mr?.length) {
+      lines.push('');
+      lines.push('प्रतिबंधक उपाय:');
+      s.prevention_mr.forEach((p) => lines.push('• ' + p));
+    }
+    lines.push('');
+    lines.push('(हपुस डॉक्टर ॲपचे AI निदान — सल्ला म्हणूनच; अंतिम निर्णय कृषी सेवा केंद्राचा)');
+    return lines.join('\n');
+  }
+
+  async function handleShare() {
+    const text = buildShareText(scan!);
+    if (Platform.OS === 'web') {
+      const nav = navigator as Navigator & { share?: (d: { text: string }) => Promise<void> };
+      if (nav.share) {
+        try { await nav.share({ text }); return; } catch { /* user cancelled */ }
+      }
+      window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+      return;
+    }
+    try {
+      await Linking.openURL('https://wa.me/?text=' + encodeURIComponent(text));
+    } catch { /* no WhatsApp installed */ }
   }
 
   async function handleSpeak() {
@@ -271,6 +314,12 @@ export default function ResultScreen() {
             </Text>
           </View>
         )}
+
+        {/* ---- WHATSAPP SHARE ---- */}
+        <TouchableOpacity style={styles.shareButton} onPress={handleShare} activeOpacity={0.85}>
+          <Share2 size={18} color="#15803d" strokeWidth={2.2} />
+          <Text style={styles.shareButtonText}>उपाय शेअर करा (WhatsApp)</Text>
+        </TouchableOpacity>
 
         {/* ---- TREATMENT ---- */}
         {!scan.is_healthy && treatments.length > 0 && (
@@ -570,6 +619,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: theme.fonts.semiBold,
     color: theme.colors.white,
+  },
+  shareButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 10,
+    backgroundColor: '#dcfce7',
+    borderWidth: 1.5,
+    borderColor: '#22c55e',
+    borderRadius: 14,
+    paddingVertical: 12,
+  },
+  shareButtonText: {
+    fontSize: 14,
+    fontFamily: theme.fonts.semiBold,
+    color: '#15803d',
   },
   voiceWarnBox: {
     marginTop: 10,
