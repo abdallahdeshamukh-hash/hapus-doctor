@@ -11,6 +11,20 @@ export default function IndexScreen() {
   useEffect(() => {
     if (loading) return;
 
+    // GitHub Pages serves 404.html for deep links, which stores the intended
+    // path and bounces here — honor it so /result/<id> and /profile survive
+    // a cold open or a refresh.
+    try {
+      const pending = sessionStorage.getItem('hapus.redirect');
+      if (pending) {
+        sessionStorage.removeItem('hapus.redirect');
+        if (pending !== '/' && !pending.startsWith('//')) {
+          router.replace(pending as never);
+          return;
+        }
+      }
+    } catch { /* private mode etc. */ }
+
     if (!session) {
       router.replace('/(auth)');
     } else {
