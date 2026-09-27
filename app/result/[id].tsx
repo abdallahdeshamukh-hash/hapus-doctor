@@ -38,6 +38,9 @@ export default function ResultScreen() {
   // §4: true when the row could not be fetched (offline) and the locally
   // cached last diagnosis was used instead. Never set on a live fetch.
   const [fromCache, setFromCache] = useState(false);
+  // TTS: true when the device has no Devanagari-capable voice — Marathi text
+  // would be skipped and the engine would speak only digits/punctuation.
+  const [voiceUnavailable, setVoiceUnavailable] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -127,7 +130,21 @@ export default function ResultScreen() {
     return parts.join(' ');
   }
 
-  function handleSpeak() {
+  // A voice can serve this text if it targets Marathi/Hindi (or generic Indian
+  // English voices, which on Android typically read Devanagari fine).
+  async function hasIndicVoice(): Promise<boolean> {
+    try {
+      const voices = await Speech.getAvailableVoicesAsync();
+      return voices.some(
+        (v: { language: string; name?: string }) =>
+        /^mr|^hi|^sa/i.test(v.language) || /marathi|hind/i.test(v.name ?? '')
+      );
+    } catch {
+      return true; // can't check → attempt to speak anyway
+    }
+  }
+
+  async function handleSpeak() {
     if (speaking) {
       Speech.stop();
       setSpeaking(false);
@@ -135,10 +152,15 @@ export default function ResultScreen() {
     }
     const text = buildSpeechText(scan!);
     if (!text) return;
+    if (!(await hasIndicVoice())) {
+      // Without a Devanagari voice the engine speaks only digits/punctuation —
+      // tell the farmer plainly instead of playing garbage.
+      setVoiceUnavailable(true);
+      return;
+    }
+    setVoiceUnavailable(false);
     setSpeaking(true);
-    // Marathi voice preferred; falls back to hi-IN / default on devices without mr-IN
     Speech.speak(text, {
-      language: 'mr-IN',
       rate: 0.95,
       pitch: 1.0,
       onDone: () => setSpeaking(false),
@@ -240,6 +262,15 @@ export default function ResultScreen() {
             {speaking ? 'थांबवा' : 'उपाय ऐका (मराठी)'}
           </Text>
         </TouchableOpacity>
+
+        {voiceUnavailable && (
+          <View style={styles.voiceWarnBox}>
+            <Text style={styles.voiceWarnText}>
+              या फोनवर मराठी आवाज नाही. उपाय खाली लिहिलेला वाचा, किंवा फोनच्या
+              Settings → Language मध्ये मराठी (किंवा हिंदी) आवाज ॲड करा.
+            </Text>
+          </View>
+        )}
 
         {/* ---- TREATMENT ---- */}
         {!scan.is_healthy && treatments.length > 0 && (
@@ -539,6 +570,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: theme.fonts.semiBold,
     color: theme.colors.white,
+  },
+  voiceWarnBox: {
+    marginTop: 10,
+    backgroundColor: '#fffbeb',
+    borderWidth: 1,
+    borderColor: '#fcd34d',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  voiceWarnText: {
+    fontSize: 13,
+    fontFamily: theme.fonts.medium,
+    color: '#92400e',
+    lineHeight: 19,
   },
   section: {
     marginTop: 28,
