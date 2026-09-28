@@ -100,6 +100,17 @@ serve(async (req) => {
 // ------------------------------------------------------------------
 async function handleDiagnose(body: AIRequest) {
   if (!body.image_base64) return json({ error: 'image_base64 required' }, 400);
+  if (!acquireSlot('vision')) {
+    return json({ error: 'A scan is already running — retry in a few seconds', retryable: true }, 503);
+  }
+  try {
+    return await diagnoseWithAI(body);
+  } finally {
+    releaseSlot('vision');
+  }
+}
+
+async function diagnoseWithAI(body: AIRequest) {
 
   const farmerNote = body.voice_text
     ? `\n\nThe farmer also described the problem (may be Marathi/Hindi/English/mixed): "${body.voice_text.slice(0, 500)}". Use this as additional evidence, but the photo is primary.`
@@ -260,6 +271,24 @@ const ROUND_BACKOFF_MS = 8_000;
 // Models Google retired (404) during this isolate's life — learned at runtime so
 // a dead alias never costs another candidate.
 const DEAD_MODELS = new Set<string>();
+
+// Per-isolate in-flight guard: a diagnose holds a GPU-bound Gemini request for
+// up to the whole budget, and a second overlapping scan (double-tap, or my own
+// probing) only adds a silent multi-minute wait on the free tier. Fail the
+// newcomer FAST with a retryable 503 — the app's client retry absorbs it.
+// Stale entries (crashed request) expire after IN_FLIGHT_MS.
+const IN_FLIGHT_MS = 110_000;
+const inFlight = new Map<string, number>();
+function acquireSlot(key: string): boolean {
+  const now = Date.now();
+  const started = inFlight.get(key);
+  if (started !== undefined && now - started < IN_FLIGHT_MS) return false;
+  inFlight.set(key, now);
+  return true;
+}
+function releaseSlot(key: string): void {
+  inFlight.delete(key);
+}
 
 async function geminiFetch(payload: unknown): Promise<{ res: Response; model: string } | null> {
   const candidates: { model: string; key: string }[] = [];
