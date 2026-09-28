@@ -43,6 +43,8 @@ const GEMINI_MODELS = [
   'gemini-flash-latest',       // fallback: newest flash alias (503s when busy)
   'gemini-3.5-flash-lite',     // pinned backup: separate bucket, calm under alias contention
   'gemini-3.5-flash',          // pinned backup: last resort for 503 storms
+  'gemini-pro-latest',         // absolute last resort: pro pool is provisioned separately,
+                               // so it often still answers when every flash pool is 503-ing
 ];
 
 const CORS = {
@@ -373,10 +375,10 @@ async function handleModels() {
       chain_dead: [...DEAD_MODELS],
       live,
       live_count: live.length,
-      version: 'v20',
+      version: 'v20.2',
     });
   } catch (err) {
-    return json({ ok: false, error: String(err).slice(0, 200), chain: GEMINI_MODELS, version: 'v20' }, 502);
+    return json({ ok: false, error: String(err).slice(0, 200), chain: GEMINI_MODELS, version: 'v20.2' }, 502);
   }
 }
 
@@ -428,7 +430,7 @@ async function handleHealth(req: Request) {
         models: GEMINI_MODELS,
         keys_count: GEMINI_KEYS.length,
         probe_latency_ms: latency,
-        version: 'v20',
+        version: 'v20.2',
       });
     }
     const diagRaw = String((globalThis as any).__geminiErr || 'probe failed');
@@ -441,10 +443,10 @@ async function handleHealth(req: Request) {
       diag: diagRaw.slice(0, 200),
       models: GEMINI_MODELS,
       keys_count: GEMINI_KEYS.length,
-      version: 'v20',
+      version: 'v20.2',
     });
   } catch (err) {
-    return json({ ok: false, status: 'error', gemini_ok: false, diag: String(err).slice(0, 200), models: GEMINI_MODELS, version: 'v20' });
+    return json({ ok: false, status: 'error', gemini_ok: false, diag: String(err).slice(0, 200), models: GEMINI_MODELS, version: 'v20.2' });
   }
 }
 
