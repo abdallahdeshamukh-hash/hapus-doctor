@@ -33,11 +33,16 @@ const GEMINI_KEYS = (Deno.env.get('GEMINI_API_KEY') ?? '')
 // BOTH -latest aliases answer 503 "high demand" for a full two-round hedge,
 // while the pinned generations behind them stay calm. The aliases stay first
 // (fastest day-to-day), but pinned backups now sit at the end of the chain.
+// v20.1 correction, same evening: gemini-2.5-* answers 404 "no longer
+// available to NEW USERS" — the models list shows it, but keys created after
+// the 2.5 cutoff cannot call it. The 404 text itself recommends the current
+// generation, so the backups are the pinned 3.5 models (post-cutoff, and a
+// different serving pool than the slammed aliases).
 const GEMINI_MODELS = [
   'gemini-flash-lite-latest',  // primary: fastest, and its own daily quota bucket
   'gemini-flash-latest',       // fallback: newest flash alias (503s when busy)
-  'gemini-2.5-flash-lite',     // pinned backup: separate quota bucket, calm under alias contention
-  'gemini-2.5-flash',          // pinned backup: last resort for 503 storms
+  'gemini-3.5-flash-lite',     // pinned backup: separate bucket, calm under alias contention
+  'gemini-3.5-flash',          // pinned backup: last resort for 503 storms
 ];
 
 const CORS = {
