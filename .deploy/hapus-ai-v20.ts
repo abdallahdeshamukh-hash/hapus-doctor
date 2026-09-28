@@ -248,7 +248,11 @@ async function handleTranscribe(body: AIRequest) {
 // Worst case stays well inside Supabase's 150s idle limit.
 const HEDGE_STAGGER_MS = 4_000; // candidate n starts at n × this
 const PER_ATTEMPT_MS = 36_000; // hard cap on any single candidate
-const TOTAL_BUDGET_MS = 100_000; // never keep the farmer waiting past this
+// v20.3: 100s → 80s. Field logs showed slow-failing candidates stretching the
+// run past 100s, plus free-tier queue time on top — long enough that some
+// clients gave up first. A guaranteed ≤80s answer (even an error) pairs with
+// the app's quiet client-side retry instead of a long silent wait.
+const TOTAL_BUDGET_MS = 80_000; // never keep the farmer waiting past this
 const HEDGE_ROUNDS = 3; // two whole extra passes when a round comes back empty
 // After a fully-empty round, wait before the next one: immediate retries hit
 // the same 503 storm, and the backoff is what makes the extra rounds count.
@@ -375,10 +379,10 @@ async function handleModels() {
       chain_dead: [...DEAD_MODELS],
       live,
       live_count: live.length,
-      version: 'v20.2',
+      version: 'v20.3',
     });
   } catch (err) {
-    return json({ ok: false, error: String(err).slice(0, 200), chain: GEMINI_MODELS, version: 'v20.2' }, 502);
+    return json({ ok: false, error: String(err).slice(0, 200), chain: GEMINI_MODELS, version: 'v20.3' }, 502);
   }
 }
 
@@ -430,7 +434,7 @@ async function handleHealth(req: Request) {
         models: GEMINI_MODELS,
         keys_count: GEMINI_KEYS.length,
         probe_latency_ms: latency,
-        version: 'v20.2',
+        version: 'v20.3',
       });
     }
     const diagRaw = String((globalThis as any).__geminiErr || 'probe failed');
@@ -443,10 +447,10 @@ async function handleHealth(req: Request) {
       diag: diagRaw.slice(0, 200),
       models: GEMINI_MODELS,
       keys_count: GEMINI_KEYS.length,
-      version: 'v20.2',
+      version: 'v20.3',
     });
   } catch (err) {
-    return json({ ok: false, status: 'error', gemini_ok: false, diag: String(err).slice(0, 200), models: GEMINI_MODELS, version: 'v20.2' });
+    return json({ ok: false, status: 'error', gemini_ok: false, diag: String(err).slice(0, 200), models: GEMINI_MODELS, version: 'v20.3' });
   }
 }
 
